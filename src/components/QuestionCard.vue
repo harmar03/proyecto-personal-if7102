@@ -7,6 +7,7 @@
  */
 import { computed } from 'vue'
 import OptionButton from './OptionButton.vue'
+import CategoryArt from './CategoryArt.vue'
 
 const props = defineProps({
   pregunta: { type: Object, required: true },
@@ -41,7 +42,9 @@ const acerto = computed(
       <span class="pregunta__cat">
         <span aria-hidden="true">{{ categoria.emoji }}</span> {{ categoria.nombre }}
       </span>
-      <span class="pregunta__ilustracion" aria-hidden="true">{{ pregunta.emoji }}</span>
+      <span class="pregunta__ilustracion" aria-hidden="true">
+        <CategoryArt :categoria="pregunta.categoria" />
+      </span>
     </header>
 
     <h2 class="pregunta__texto">{{ pregunta.pregunta }}</h2>
@@ -101,12 +104,13 @@ const acerto = computed(
 .pregunta__ilustracion {
   display: grid;
   place-items: center;
-  width: 56px;
-  height: 56px;
-  font-size: 1.9rem;
+  width: 60px;
+  height: 60px;
+  padding: 9px;
   border-radius: 50%;
   background: var(--surface-2);
   border: 1px solid var(--border);
+  flex: 0 0 auto;
 }
 .pregunta__texto {
   font-size: 1.3rem;
