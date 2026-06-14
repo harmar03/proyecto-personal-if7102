@@ -1,0 +1,227 @@
+/* ============================================================
+   Pura Vida Quiz — Sistema de diseño global
+   IF7102 Multimedios · Vue 3
+   Paleta inspirada en Costa Rica: selva, sol y cielo.
+   El tema (claro/oscuro) se controla con [data-theme] en <html>.
+   ============================================================ */
+
+:root {
+  /* --- Colores de marca --- */
+  --selva: #0f7a52;
+  --selva-claro: #18a86f;
+  --sol: #f5b700;
+  --sol-claro: #ffce3a;
+  --cielo: #1ba0d7;
+  --coral: #ef4444;
+  --coral-suave: #f87171;
+
+  /* --- Tema CLARO (por defecto) --- */
+  --bg: #f4f6f2;
+  --bg-degradado: radial-gradient(
+      1200px 600px at 80% -10%,
+      rgba(245, 183, 0, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px 700px at -10% 110%,
+      rgba(27, 160, 215, 0.16),
+      transparent 55%
+    ),
+    linear-gradient(160deg, #f7f9f5 0%, #eef3ec 100%);
+  --surface: #ffffff;
+  --surface-2: #f7f9f5;
+  --surface-hover: #eef3ec;
+  --border: #e2e8df;
+  --border-fuerte: #cfd8cd;
+  --text: #1f2a26;
+  --text-suave: #5b6b63;
+  --text-tenue: #8a978f;
+  --primario: var(--selva);
+  --primario-contraste: #ffffff;
+  --acento: var(--sol);
+  --sombra: 0 10px 30px -12px rgba(15, 42, 30, 0.25);
+  --sombra-fuerte: 0 24px 60px -20px rgba(15, 42, 30, 0.35);
+  --radio: 18px;
+  --radio-sm: 12px;
+  --foco: 0 0 0 3px rgba(27, 160, 215, 0.45);
+
+  /* --- Tipografía --- */
+  --sans: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial,
+    sans-serif;
+  --mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  color-scheme: light;
+  font-family: var(--sans);
+  line-height: 1.5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Tema OSCURO --- */
+:root[data-theme='dark'] {
+  --bg: #0c1411;
+  --bg-degradado: radial-gradient(
+      1200px 600px at 80% -10%,
+      rgba(245, 183, 0, 0.12),
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px 700px at -10% 110%,
+      rgba(27, 160, 215, 0.14),
+      transparent 55%
+    ),
+    linear-gradient(160deg, #0d1714 0%, #0a1210 100%);
+  --surface: #16211d;
+  --surface-2: #1b2823;
+  --surface-hover: #213029;
+  --border: #25342d;
+  --border-fuerte: #324438;
+  --text: #eaf2ec;
+  --text-suave: #a7b8ad;
+  --text-tenue: #7c8c82;
+  --primario: var(--selva-claro);
+  --primario-contraste: #06120c;
+  --acento: var(--sol-claro);
+  --sombra: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+  --sombra-fuerte: 0 24px 60px -20px rgba(0, 0, 0, 0.7);
+  --foco: 0 0 0 3px rgba(27, 160, 215, 0.55);
+  color-scheme: dark;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100svh;
+  color: var(--text);
+  background: var(--bg);
+  background-image: var(--bg-degradado);
+  background-attachment: fixed;
+  transition: background-color 0.4s ease, color 0.3s ease;
+}
+
+#app {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Tipografía base --- */
+h1,
+h2,
+h3 {
+  color: var(--text);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: var(--cielo);
+}
+
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--foco);
+  border-radius: 8px;
+}
+
+/* --- Utilidades reutilizables --- */
+.contenedor {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.tarjeta {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.9rem 1.8rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease,
+    border-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.boton:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+.boton--primario {
+  color: var(--primario-contraste);
+  background: linear-gradient(135deg, var(--selva-claro), var(--selva));
+  box-shadow: 0 10px 24px -10px rgba(15, 122, 82, 0.8);
+}
+
+.boton--primario:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px -10px rgba(15, 122, 82, 0.9);
+}
+
+.boton--secundario {
+  color: var(--text);
+  background: var(--surface-2);
+  border-color: var(--border-fuerte);
+}
+
+.boton--secundario:hover {
+  background: var(--surface-hover);
+  transform: translateY(-2px);
+}
+
+/* --- Accesibilidad: respeta "reducir movimiento" --- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* --- Transiciones de pantalla (usadas por <Transition> en App.vue) --- */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(14px);
+}
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-14px);
+}
+.fade-leave-active {
+  position: absolute;
+  inset: 0;
+}
