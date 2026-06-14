@@ -14,10 +14,13 @@ historia), construido con **Vue 3 + Vite**. Proyecto Personal del curso.
 ## ✨ Características
 
 - **Tres pantallas**: inicio → juego → resultado, con transiciones animadas.
-- **Selección de categoría** (Naturaleza, Geografía, Cultura, Historia o Todas).
+- **29 preguntas** en **6 categorías** (Naturaleza, Geografía, Cultura, Historia,
+  Gastronomía y Símbolos), seleccionables o todas juntas.
 - **Temporizador** de 15 s por pregunta con barra visual y auto-avance.
 - **Puntuación con estrategia**: puntos base + bonus por rapidez + bonus por
   racha de aciertos consecutivos.
+- **Comodín 50:50**: elimina dos opciones incorrectas, una vez por partida.
+- **Compartir resultado** al portapapeles (con método de respaldo).
 - **Preguntas y opciones barajadas** en cada partida (nunca sale igual).
 - **Efectos de sonido sintetizados** en vivo con la Web Audio API
   (acierto / error / resultado) — *producción propia*, sin archivos externos.
