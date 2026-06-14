@@ -30,6 +30,7 @@ const {
   categorias,
   habilidades,
   opcionesOcultas,
+  dobleActivo,
   SEGUNDOS_POR_PREGUNTA,
 } = quiz
 
@@ -91,6 +92,12 @@ function habilidadSaltar() {
   }
 }
 
+function habilidadCongelar() {
+  if (bloqueado.value || !habilidades.value.congelar) return
+  quiz.gastarHabilidad('congelar')
+  timer.detener() // el tiempo queda congelado en esta pregunta
+}
+
 // --- Eventos de teclado: teclas 1–4 para responder ---
 function alPresionar(e) {
   if (bloqueado.value) return
@@ -118,6 +125,7 @@ onUnmounted(() => {
     <div class="juego__hud">
       <StatPill icono="⭐" :valor="puntos" etiqueta="pts" />
       <StatPill icono="🔥" :valor="racha" etiqueta="racha" :destacado="racha >= 3" />
+      <StatPill v-if="dobleActivo" icono="💎" valor="2x" etiqueta="armado" destacado />
     </div>
 
     <TimerBar :restante="timer.restante.value" :fraccion="timer.fraccion.value" />
@@ -133,12 +141,29 @@ onUnmounted(() => {
         🎯 <span class="hab__txt">50:50</span>
       </button>
       <button
+        class="hab hab--oro"
+        :class="{ 'hab--activo': dobleActivo }"
+        :disabled="bloqueado || !habilidades.doble"
+        @click="quiz.activarDoble()"
+        title="Doble puntos — la próxima respuesta correcta vale x2"
+      >
+        💎 <span class="hab__txt">2x</span>
+      </button>
+      <button
         class="hab"
         :disabled="bloqueado || !habilidades.extra"
         @click="habilidadExtra"
         title="Tiempo extra — suma 5 segundos"
       >
         ⏱️ <span class="hab__txt">+5 s</span>
+      </button>
+      <button
+        class="hab"
+        :disabled="bloqueado || !habilidades.congelar"
+        @click="habilidadCongelar"
+        title="Congelar — detiene el tiempo en esta pregunta"
+      >
+        ❄️ <span class="hab__txt">Congelar</span>
       </button>
       <button
         class="hab"
@@ -181,10 +206,12 @@ onUnmounted(() => {
 }
 .habilidades {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 .hab {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 84px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -208,7 +235,34 @@ onUnmounted(() => {
   cursor: default;
   text-decoration: line-through;
 }
-@media (max-width: 440px) {
+/* Poder 2x (dorado) */
+.hab--oro {
+  border-color: var(--sol);
+  background: color-mix(in srgb, var(--sol) 14%, var(--surface));
+  color: var(--acento);
+}
+.hab--oro:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--sol) 24%, var(--surface));
+}
+/* 2x armado: resaltado y pulsante aunque ya esté "usado" */
+.hab--activo {
+  opacity: 1 !important;
+  text-decoration: none !important;
+  border-color: var(--sol);
+  background: var(--sol);
+  color: #3a2c00;
+  animation: latido2x 1s ease-in-out infinite;
+}
+@keyframes latido2x {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+@media (max-width: 380px) {
   .hab__txt {
     display: none;
   }

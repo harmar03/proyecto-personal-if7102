@@ -56,8 +56,15 @@ export function useQuiz() {
   const rachaMax = ref(0)
   const respuestas = ref([]) // registro para el repaso final
   // Habilidades (power-ups), cada una usable una vez por partida.
-  const habilidades = ref({ cincuenta: true, extra: true, saltar: true })
+  const habilidades = ref({
+    cincuenta: true,
+    extra: true,
+    saltar: true,
+    doble: true,
+    congelar: true,
+  })
   const opcionesOcultas = ref([]) // índices ocultados por el 50:50
+  const dobleActivo = ref(false) // true cuando el 2x está armado para la próxima
 
   // --- Récord persistente ---
   const mejorPuntaje = ref(Number(localStorage.getItem(CLAVE_RECORD)) || 0)
@@ -135,8 +142,15 @@ export function useQuiz() {
     rachaMax.value = 0
     nuevoRecord.value = false
     respuestas.value = []
-    habilidades.value = { cincuenta: true, extra: true, saltar: true }
+    habilidades.value = {
+      cincuenta: true,
+      extra: true,
+      saltar: true,
+      doble: true,
+      congelar: true,
+    }
     opcionesOcultas.value = []
+    dobleActivo.value = false
   }
 
   /** Habilidad 50:50: oculta dos opciones incorrectas de la pregunta actual. */
@@ -156,6 +170,13 @@ export function useQuiz() {
   /** Marca una habilidad como usada (para efectos que aplica GameScreen). */
   function gastarHabilidad(nombre) {
     if (habilidades.value[nombre]) habilidades.value[nombre] = false
+  }
+
+  /** Habilidad 2x: arma el doble de puntos para la próxima respuesta. */
+  function activarDoble() {
+    if (!habilidades.value.doble || bloqueado.value) return
+    habilidades.value.doble = false
+    dobleActivo.value = true
   }
 
   /** Habilidad Saltar: registra la pregunta como saltada (sin penalizar puntos). */
@@ -202,11 +223,15 @@ export function useQuiz() {
       // Puntos: base + bonus por rapidez + bonus por racha.
       const bonusTiempo = Math.round(50 * fraccionTiempo)
       const bonusRacha = (racha.value - 1) * 10
-      puntos.value += 100 + bonusTiempo + bonusRacha
+      let ganados = 100 + bonusTiempo + bonusRacha
+      if (dobleActivo.value) ganados *= 2 // poder 2x
+      puntos.value += ganados
     } else {
       errores.value++
       racha.value = 0
     }
+
+    dobleActivo.value = false // el 2x se consume tras responder
 
     respuestas.value.push({
       id: pregunta.id,
@@ -263,6 +288,7 @@ export function useQuiz() {
     respuestas,
     habilidades,
     opcionesOcultas,
+    dobleActivo,
     // derivados
     total,
     numeroPregunta,
@@ -283,5 +309,6 @@ export function useQuiz() {
     usar5050,
     gastarHabilidad,
     saltarPregunta,
+    activarDoble,
   }
 }

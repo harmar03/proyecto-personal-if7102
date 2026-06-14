@@ -19,7 +19,8 @@ historia), construido con **Vue 3 + Vite**. Proyecto Personal del curso.
 - **Temporizador** de 15 s por pregunta con barra visual y auto-avance.
 - **Puntuación con estrategia**: puntos base + bonus por rapidez + bonus por
   racha de aciertos consecutivos.
-- **Comodín 50:50**: elimina dos opciones incorrectas, una vez por partida.
+- **5 poderes** (cada uno una vez por partida): 50:50, doble puntos (2x),
+  +5 s, congelar tiempo y saltar.
 - **Compartir resultado** al portapapeles (con método de respaldo).
 - **Preguntas y opciones barajadas** en cada partida (nunca sale igual).
 - **Efectos de sonido sintetizados** en vivo con la Web Audio API
