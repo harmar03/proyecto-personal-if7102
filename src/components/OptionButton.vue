@@ -21,7 +21,7 @@ const emit = defineEmits(['elegir'])
   <button
     class="opcion"
     :class="`opcion--${estado}`"
-    :disabled="bloqueado"
+    :disabled="bloqueado || estado === 'oculta'"
     @click="emit('elegir', indice)"
   >
     <span class="opcion__atajo" aria-hidden="true">{{ atajo }}</span>
@@ -109,5 +109,10 @@ const emit = defineEmits(['elegir'])
 }
 .opcion--inactiva {
   opacity: 0.5;
+}
+.opcion--oculta {
+  opacity: 0.3;
+  text-decoration: line-through;
+  filter: grayscale(1);
 }
 </style>

@@ -13,12 +13,14 @@ const props = defineProps({
   categoria: { type: Object, default: () => ({ nombre: '', emoji: '❓' }) },
   bloqueado: { type: Boolean, default: false },
   respuestaElegida: { type: Number, default: null },
+  ocultas: { type: Array, default: () => [] },
 })
 
 const emit = defineEmits(['elegir'])
 
 // Estado visual de cada opción según si ya se respondió.
 function estadoOpcion(i, texto) {
+  if (props.ocultas.includes(i)) return 'oculta' // eliminada por el comodín 50:50
   if (!props.bloqueado) return 'idle'
   if (texto === props.pregunta.correcta) return 'correcta'
   if (i === props.respuestaElegida) return 'incorrecta'

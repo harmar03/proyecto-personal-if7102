@@ -55,6 +55,8 @@ export function useQuiz() {
   const racha = ref(0)
   const rachaMax = ref(0)
   const respuestas = ref([]) // registro para el repaso final
+  const comodinDisponible = ref(true) // comodín 50:50 (una vez por partida)
+  const opcionesOcultas = ref([]) // índices ocultados por el comodín
 
   // --- Récord persistente ---
   const mejorPuntaje = ref(Number(localStorage.getItem(CLAVE_RECORD)) || 0)
@@ -132,6 +134,22 @@ export function useQuiz() {
     rachaMax.value = 0
     nuevoRecord.value = false
     respuestas.value = []
+    comodinDisponible.value = true
+    opcionesOcultas.value = []
+  }
+
+  /** Comodín 50:50: oculta dos opciones incorrectas de la pregunta actual. */
+  function usarComodin() {
+    if (!comodinDisponible.value || bloqueado.value || !preguntaActual.value) {
+      return
+    }
+    const p = preguntaActual.value
+    const incorrectas = p.opciones
+      .map((op, i) => ({ op, i }))
+      .filter((x) => x.op !== p.correcta)
+      .map((x) => x.i)
+    opcionesOcultas.value = barajar(incorrectas).slice(0, 2)
+    comodinDisponible.value = false
   }
 
   /**
@@ -181,6 +199,7 @@ export function useQuiz() {
       indice.value++
       respuestaElegida.value = null
       bloqueado.value = false
+      opcionesOcultas.value = []
       return true
     }
     return false
@@ -214,6 +233,8 @@ export function useQuiz() {
     racha,
     rachaMax,
     respuestas,
+    comodinDisponible,
+    opcionesOcultas,
     // derivados
     total,
     numeroPregunta,
@@ -231,5 +252,6 @@ export function useQuiz() {
     responder,
     siguiente,
     finalizar,
+    usarComodin,
   }
 }

@@ -28,6 +28,8 @@ const {
   puntos,
   racha,
   categorias,
+  comodinDisponible,
+  opcionesOcultas,
   SEGUNDOS_POR_PREGUNTA,
 } = quiz
 
@@ -101,6 +103,15 @@ onUnmounted(() => {
     <div class="juego__hud">
       <StatPill icono="⭐" :valor="puntos" etiqueta="pts" />
       <StatPill icono="🔥" :valor="racha" etiqueta="racha" :destacado="racha >= 3" />
+      <button
+        v-if="comodinDisponible"
+        class="comodin"
+        :disabled="bloqueado"
+        @click="quiz.usarComodin()"
+        title="Elimina dos opciones incorrectas (una vez por partida)"
+      >
+        50:50
+      </button>
     </div>
 
     <TimerBar :restante="timer.restante.value" :fraccion="timer.fraccion.value" />
@@ -112,6 +123,7 @@ onUnmounted(() => {
         :categoria="categoriaActual"
         :bloqueado="bloqueado"
         :respuesta-elegida="respuestaElegida"
+        :ocultas="opcionesOcultas"
         @elegir="elegir"
       />
     </Transition>
@@ -131,5 +143,26 @@ onUnmounted(() => {
   display: flex;
   gap: 0.6rem;
   flex-wrap: wrap;
+  align-items: center;
+}
+.comodin {
+  margin-left: auto;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--cielo);
+  background: color-mix(in srgb, var(--cielo) 14%, var(--surface));
+  color: var(--cielo);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.2s ease;
+}
+.comodin:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--cielo) 24%, var(--surface));
+}
+.comodin:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 </style>
