@@ -28,7 +28,7 @@ const {
   puntos,
   racha,
   categorias,
-  comodinDisponible,
+  habilidades,
   opcionesOcultas,
   SEGUNDOS_POR_PREGUNTA,
 } = quiz
@@ -76,6 +76,21 @@ function avanzar() {
   }
 }
 
+// --- Habilidades (power-ups) ---
+function habilidadExtra() {
+  if (bloqueado.value || !habilidades.value.extra) return
+  quiz.gastarHabilidad('extra')
+  timer.agregar(5)
+}
+
+function habilidadSaltar() {
+  if (bloqueado.value || !habilidades.value.saltar) return
+  if (quiz.saltarPregunta()) {
+    timer.detener()
+    avanzar()
+  }
+}
+
 // --- Eventos de teclado: teclas 1–4 para responder ---
 function alPresionar(e) {
   if (bloqueado.value) return
@@ -103,18 +118,37 @@ onUnmounted(() => {
     <div class="juego__hud">
       <StatPill icono="⭐" :valor="puntos" etiqueta="pts" />
       <StatPill icono="🔥" :valor="racha" etiqueta="racha" :destacado="racha >= 3" />
-      <button
-        v-if="comodinDisponible"
-        class="comodin"
-        :disabled="bloqueado"
-        @click="quiz.usarComodin()"
-        title="Elimina dos opciones incorrectas (una vez por partida)"
-      >
-        50:50
-      </button>
     </div>
 
     <TimerBar :restante="timer.restante.value" :fraccion="timer.fraccion.value" />
+
+    <!-- Habilidades (cada una se puede usar una vez por partida) -->
+    <div class="habilidades" role="group" aria-label="Habilidades">
+      <button
+        class="hab"
+        :disabled="bloqueado || !habilidades.cincuenta"
+        @click="quiz.usar5050()"
+        title="50:50 — elimina dos opciones incorrectas"
+      >
+        🎯 <span class="hab__txt">50:50</span>
+      </button>
+      <button
+        class="hab"
+        :disabled="bloqueado || !habilidades.extra"
+        @click="habilidadExtra"
+        title="Tiempo extra — suma 5 segundos"
+      >
+        ⏱️ <span class="hab__txt">+5 s</span>
+      </button>
+      <button
+        class="hab"
+        :disabled="bloqueado || !habilidades.saltar"
+        @click="habilidadSaltar"
+        title="Saltar — pasa a la siguiente sin penalizar puntos"
+      >
+        ⏭️ <span class="hab__txt">Saltar</span>
+      </button>
+    </div>
 
     <Transition name="fade" mode="out-in">
       <QuestionCard
@@ -145,24 +179,38 @@ onUnmounted(() => {
   flex-wrap: wrap;
   align-items: center;
 }
-.comodin {
-  margin-left: auto;
-  padding: 0.45rem 0.9rem;
+.habilidades {
+  display: flex;
+  gap: 0.5rem;
+}
+.hab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.6rem;
   border-radius: 999px;
   border: 1.5px solid var(--cielo);
-  background: color-mix(in srgb, var(--cielo) 14%, var(--surface));
+  background: color-mix(in srgb, var(--cielo) 12%, var(--surface));
   color: var(--cielo);
   font-weight: 800;
-  letter-spacing: 0.03em;
+  font-size: 0.92rem;
   cursor: pointer;
   transition: transform 0.12s ease, background 0.2s ease;
 }
-.comodin:hover:not(:disabled) {
+.hab:hover:not(:disabled) {
   transform: translateY(-2px);
-  background: color-mix(in srgb, var(--cielo) 24%, var(--surface));
+  background: color-mix(in srgb, var(--cielo) 22%, var(--surface));
 }
-.comodin:disabled {
-  opacity: 0.45;
+.hab:disabled {
+  opacity: 0.4;
   cursor: default;
+  text-decoration: line-through;
+}
+@media (max-width: 440px) {
+  .hab__txt {
+    display: none;
+  }
 }
 </style>

@@ -144,7 +144,8 @@ const estrellas = computed(() => {
             <span class="repaso__preg">{{ r.pregunta }}</span>
           </div>
           <p v-if="!r.acerto" class="repaso__linea">
-            <span v-if="r.seAgoto">⏱️ Se agotó el tiempo.</span>
+            <span v-if="r.saltada">⏭️ Saltaste esta pregunta.</span>
+            <span v-else-if="r.seAgoto">⏱️ Se agotó el tiempo.</span>
             <span v-else>Tu respuesta: <em>{{ r.elegida }}</em>.</span>
             Correcta: <strong>{{ r.correcta }}</strong>
           </p>

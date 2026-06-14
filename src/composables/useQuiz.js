@@ -55,8 +55,9 @@ export function useQuiz() {
   const racha = ref(0)
   const rachaMax = ref(0)
   const respuestas = ref([]) // registro para el repaso final
-  const comodinDisponible = ref(true) // comodín 50:50 (una vez por partida)
-  const opcionesOcultas = ref([]) // índices ocultados por el comodín
+  // Habilidades (power-ups), cada una usable una vez por partida.
+  const habilidades = ref({ cincuenta: true, extra: true, saltar: true })
+  const opcionesOcultas = ref([]) // índices ocultados por el 50:50
 
   // --- Récord persistente ---
   const mejorPuntaje = ref(Number(localStorage.getItem(CLAVE_RECORD)) || 0)
@@ -134,13 +135,13 @@ export function useQuiz() {
     rachaMax.value = 0
     nuevoRecord.value = false
     respuestas.value = []
-    comodinDisponible.value = true
+    habilidades.value = { cincuenta: true, extra: true, saltar: true }
     opcionesOcultas.value = []
   }
 
-  /** Comodín 50:50: oculta dos opciones incorrectas de la pregunta actual. */
-  function usarComodin() {
-    if (!comodinDisponible.value || bloqueado.value || !preguntaActual.value) {
+  /** Habilidad 50:50: oculta dos opciones incorrectas de la pregunta actual. */
+  function usar5050() {
+    if (!habilidades.value.cincuenta || bloqueado.value || !preguntaActual.value) {
       return
     }
     const p = preguntaActual.value
@@ -149,7 +150,34 @@ export function useQuiz() {
       .filter((x) => x.op !== p.correcta)
       .map((x) => x.i)
     opcionesOcultas.value = barajar(incorrectas).slice(0, 2)
-    comodinDisponible.value = false
+    habilidades.value.cincuenta = false
+  }
+
+  /** Marca una habilidad como usada (para efectos que aplica GameScreen). */
+  function gastarHabilidad(nombre) {
+    if (habilidades.value[nombre]) habilidades.value[nombre] = false
+  }
+
+  /** Habilidad Saltar: registra la pregunta como saltada (sin penalizar puntos). */
+  function saltarPregunta() {
+    if (!habilidades.value.saltar || bloqueado.value || !preguntaActual.value) {
+      return false
+    }
+    const p = preguntaActual.value
+    habilidades.value.saltar = false
+    racha.value = 0
+    bloqueado.value = true
+    respuestas.value.push({
+      id: p.id,
+      pregunta: p.pregunta,
+      correcta: p.correcta,
+      elegida: null,
+      acerto: false,
+      seAgoto: false,
+      saltada: true,
+      explicacion: p.explicacion || '',
+    })
+    return true
   }
 
   /**
@@ -233,7 +261,7 @@ export function useQuiz() {
     racha,
     rachaMax,
     respuestas,
-    comodinDisponible,
+    habilidades,
     opcionesOcultas,
     // derivados
     total,
@@ -252,6 +280,8 @@ export function useQuiz() {
     responder,
     siguiente,
     finalizar,
-    usarComodin,
+    usar5050,
+    gastarHabilidad,
+    saltarPregunta,
   }
 }

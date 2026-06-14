@@ -45,8 +45,26 @@ export function useTimer(segundos, alAgotarse) {
     }, PASO)
   }
 
+  // Suma segundos a la cuenta actual (habilidad "tiempo extra").
+  // Si supera la duración base, amplía el total para que la barra no se desborde.
+  function agregar(segundos) {
+    restanteMs.value += segundos * 1000
+    if (restanteMs.value > total.value * 1000) {
+      total.value = restanteMs.value / 1000
+    }
+  }
+
   // Seguridad: si el componente desaparece, no dejamos el intervalo vivo.
   onUnmounted(detener)
 
-  return { total, restante, restanteMs, fraccion, corriendo, iniciar, detener }
+  return {
+    total,
+    restante,
+    restanteMs,
+    fraccion,
+    corriendo,
+    iniciar,
+    detener,
+    agregar,
+  }
 }

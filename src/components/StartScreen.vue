@@ -101,6 +101,7 @@ const seleccion = ref('todas')
         <li>⏱️ <strong>15 s</strong> por pregunta</li>
         <li>⚡ Respondé rápido para ganar bonus</li>
         <li>🔥 Encadená aciertos para subir tu racha</li>
+        <li>🎯 Tenés 3 habilidades: <strong>50:50</strong>, <strong>+5 s</strong> y <strong>saltar</strong></li>
         <li>⌨️ Usá las teclas <kbd>1</kbd>–<kbd>4</kbd> o el mouse</li>
       </ul>
 
