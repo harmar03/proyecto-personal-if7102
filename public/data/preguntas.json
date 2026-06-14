@@ -1,0 +1,145 @@
+{
+  "titulo": "Pura Vida Quiz — Conocé Costa Rica",
+  "preguntas": [
+    {
+      "id": 1,
+      "categoria": "naturaleza",
+      "emoji": "🐦",
+      "pregunta": "¿Cuál es el ave nacional de Costa Rica?",
+      "opciones": ["Tucán", "Yigüirro", "Quetzal", "Lapa roja"],
+      "correcta": "Yigüirro",
+      "explicacion": "El yigüirro fue declarado ave nacional en 1977; su canto anuncia la llegada de las lluvias."
+    },
+    {
+      "id": 2,
+      "categoria": "naturaleza",
+      "emoji": "🌳",
+      "pregunta": "¿Qué parte del territorio de Costa Rica está protegida bajo áreas de conservación?",
+      "opciones": ["Un 5%", "Un 10%", "Cerca del 25%", "Más del 50%"],
+      "correcta": "Cerca del 25%",
+      "explicacion": "Alrededor de una cuarta parte del país está bajo alguna categoría de protección, clave para su biodiversidad."
+    },
+    {
+      "id": 3,
+      "categoria": "naturaleza",
+      "emoji": "🦥",
+      "pregunta": "¿Qué animal de los bosques ticos es símbolo de la 'vida lenta'?",
+      "opciones": ["El mono carablanca", "El perezoso", "El jaguar", "El coatí"],
+      "correcta": "El perezoso",
+      "explicacion": "El perezoso pasa la mayor parte del día durmiendo y moviéndose muy despacio entre los árboles."
+    },
+    {
+      "id": 4,
+      "categoria": "naturaleza",
+      "emoji": "🌸",
+      "pregunta": "¿Cuál es la flor nacional de Costa Rica?",
+      "opciones": ["Guaria morada", "Girasol", "Rosa de Jericó", "Flor de itabo"],
+      "correcta": "Guaria morada",
+      "explicacion": "La guaria morada (Guarianthe skinneri) es una orquídea declarada flor nacional en 1939."
+    },
+    {
+      "id": 5,
+      "categoria": "geografia",
+      "emoji": "🏙️",
+      "pregunta": "¿Cuál es la capital de Costa Rica?",
+      "opciones": ["Cartago", "San José", "Alajuela", "Liberia"],
+      "correcta": "San José",
+      "explicacion": "San José es la capital del país desde 1823 y su principal centro político y económico."
+    },
+    {
+      "id": 6,
+      "categoria": "geografia",
+      "emoji": "🌋",
+      "pregunta": "¿Cuál es el volcán más alto de Costa Rica?",
+      "opciones": ["Arenal", "Poás", "Irazú", "Turrialba"],
+      "correcta": "Irazú",
+      "explicacion": "El volcán Irazú, con 3.432 m de altura, es el punto volcánico más alto del país."
+    },
+    {
+      "id": 7,
+      "categoria": "geografia",
+      "emoji": "🗺️",
+      "pregunta": "¿Cuántas provincias tiene Costa Rica?",
+      "opciones": ["Cinco", "Seis", "Siete", "Nueve"],
+      "correcta": "Siete",
+      "explicacion": "San José, Alajuela, Cartago, Heredia, Guanacaste, Puntarenas y Limón."
+    },
+    {
+      "id": 8,
+      "categoria": "geografia",
+      "emoji": "🌊",
+      "pregunta": "¿Qué dos océanos bañan las costas de Costa Rica?",
+      "opciones": [
+        "Pacífico y Atlántico",
+        "Índico y Pacífico",
+        "Atlántico y Ártico",
+        "Solo el Pacífico"
+      ],
+      "correcta": "Pacífico y Atlántico",
+      "explicacion": "El Caribe costarricense forma parte del océano Atlántico, en el lado opuesto al Pacífico."
+    },
+    {
+      "id": 9,
+      "categoria": "geografia",
+      "emoji": "🌅",
+      "pregunta": "¿En qué provincia se ubica la ciudad de Liberia?",
+      "opciones": ["Puntarenas", "Guanacaste", "Limón", "Alajuela"],
+      "correcta": "Guanacaste",
+      "explicacion": "Liberia es la cabecera de la provincia de Guanacaste, conocida como 'la Ciudad Blanca'."
+    },
+    {
+      "id": 10,
+      "categoria": "cultura",
+      "emoji": "💰",
+      "pregunta": "¿Cuál es la moneda oficial de Costa Rica?",
+      "opciones": ["El peso", "El colón", "El quetzal", "El lempira"],
+      "correcta": "El colón",
+      "explicacion": "El colón costarricense lleva su nombre en honor a Cristóbal Colón."
+    },
+    {
+      "id": 11,
+      "categoria": "cultura",
+      "emoji": "🤙",
+      "pregunta": "¿Qué frase usan los ticos como saludo y filosofía de vida?",
+      "opciones": ["Qué chiva", "Pura vida", "Tuanis", "Al chile"],
+      "correcta": "Pura vida",
+      "explicacion": "'Pura vida' expresa optimismo y sirve para saludar, despedirse y agradecer."
+    },
+    {
+      "id": 12,
+      "categoria": "cultura",
+      "emoji": "🍚",
+      "pregunta": "¿Cuál es el desayuno típico costarricense a base de arroz y frijoles?",
+      "opciones": ["Casado", "Gallo pinto", "Olla de carne", "Tamal"],
+      "correcta": "Gallo pinto",
+      "explicacion": "El gallo pinto mezcla arroz y frijoles y es el desayuno más emblemático del país."
+    },
+    {
+      "id": 13,
+      "categoria": "cultura",
+      "emoji": "🇨🇷",
+      "pregunta": "¿Cómo se les llama cariñosamente a los costarricenses?",
+      "opciones": ["Ticos", "Nicas", "Catrachos", "Pinoleros"],
+      "correcta": "Ticos",
+      "explicacion": "El apodo viene del uso del diminutivo '-ico' (por ejemplo, 'momentico')."
+    },
+    {
+      "id": 14,
+      "categoria": "historia",
+      "emoji": "🕊️",
+      "pregunta": "¿En qué año abolió Costa Rica su ejército?",
+      "opciones": ["1821", "1948", "1969", "1983"],
+      "correcta": "1948",
+      "explicacion": "Tras la guerra civil, José Figueres abolió el ejército en 1948, lo que quedó en la Constitución de 1949."
+    },
+    {
+      "id": 15,
+      "categoria": "historia",
+      "emoji": "📜",
+      "pregunta": "¿De qué país se independizó Costa Rica en 1821?",
+      "opciones": ["México", "España", "Colombia", "Inglaterra"],
+      "correcta": "España",
+      "explicacion": "Centroamérica declaró su independencia de España el 15 de septiembre de 1821."
+    }
+  ]
+}

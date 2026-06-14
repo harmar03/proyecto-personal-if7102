@@ -1,0 +1,233 @@
+/**
+ * useQuiz — Lógica central del juego (la "máquina de estados" del quiz).
+ *
+ * Responsabilidades:
+ *   - Cargar las preguntas desde el JSON con fetch() (requisito del proyecto).
+ *   - Derivar las categorías disponibles con sus contadores (computed).
+ *   - Armar una partida: filtrar por categoría y BARAJAR preguntas y opciones.
+ *   - Llevar el marcador: aciertos, errores, racha y puntos con bonus de tiempo.
+ *   - Registrar cada respuesta para el repaso final.
+ *   - Guardar el mejor puntaje en localStorage.
+ *
+ * Demuestra de Vue: ref, computed, manejo asíncrono en composables y separación
+ * de la lógica fuera de los componentes (patrón Composition API).
+ */
+import { ref, computed } from 'vue'
+
+const CLAVE_RECORD = 'puravida-quiz-record'
+const SEGUNDOS_POR_PREGUNTA = 15
+
+// Metadatos de presentación de cada categoría del JSON.
+const META_CATEGORIAS = {
+  naturaleza: { nombre: 'Naturaleza', emoji: '🌿' },
+  geografia: { nombre: 'Geografía', emoji: '🗺️' },
+  cultura: { nombre: 'Cultura', emoji: '🎭' },
+  historia: { nombre: 'Historia', emoji: '📜' },
+}
+
+// Fisher–Yates: baraja una copia del arreglo sin mutar el original.
+function barajar(arreglo) {
+  const copia = [...arreglo]
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copia[i], copia[j]] = [copia[j], copia[i]]
+  }
+  return copia
+}
+
+export function useQuiz() {
+  // --- Estado de carga ---
+  const estado = ref('cargando') // 'cargando' | 'listo' | 'error'
+  const titulo = ref('')
+  const preguntas = ref([])
+
+  // --- Estado de la partida ---
+  const categoriaActiva = ref('todas')
+  const preguntasJuego = ref([])
+  const indice = ref(0)
+  const respuestaElegida = ref(null) // índice de la opción elegida
+  const bloqueado = ref(false) // true cuando ya se respondió la pregunta
+  const aciertos = ref(0)
+  const errores = ref(0)
+  const puntos = ref(0)
+  const racha = ref(0)
+  const rachaMax = ref(0)
+  const respuestas = ref([]) // registro para el repaso final
+
+  // --- Récord persistente ---
+  const mejorPuntaje = ref(Number(localStorage.getItem(CLAVE_RECORD)) || 0)
+  const nuevoRecord = ref(false)
+
+  // --- Derivados ---
+  const preguntaActual = computed(
+    () => preguntasJuego.value[indice.value] || null
+  )
+  const total = computed(() => preguntasJuego.value.length)
+  const numeroPregunta = computed(() => indice.value + 1)
+  const esUltima = computed(() => indice.value >= total.value - 1)
+  const progreso = computed(() =>
+    total.value ? (indice.value / total.value) * 100 : 0
+  )
+  const porcentaje = computed(() =>
+    total.value ? Math.round((aciertos.value / total.value) * 100) : 0
+  )
+
+  // Lista de categorías con cuántas preguntas tiene cada una.
+  const categorias = computed(() => {
+    const conteo = {}
+    for (const p of preguntas.value) {
+      conteo[p.categoria] = (conteo[p.categoria] || 0) + 1
+    }
+    const lista = Object.keys(conteo).map((id) => ({
+      id,
+      nombre: META_CATEGORIAS[id]?.nombre || id,
+      emoji: META_CATEGORIAS[id]?.emoji || '❓',
+      cantidad: conteo[id],
+    }))
+    return [
+      { id: 'todas', nombre: 'Todas', emoji: '🎲', cantidad: preguntas.value.length },
+      ...lista,
+    ]
+  })
+
+  // --- Carga del JSON con fetch ---
+  async function cargar() {
+    estado.value = 'cargando'
+    try {
+      const res = await fetch('/data/preguntas.json')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const datos = await res.json()
+      titulo.value = datos.titulo || 'Quiz'
+      preguntas.value = datos.preguntas || []
+      estado.value = 'listo'
+    } catch (e) {
+      console.error('No se pudo cargar el JSON de preguntas:', e)
+      estado.value = 'error'
+    }
+  }
+
+  // --- Iniciar una partida ---
+  function empezar(categoriaId = 'todas') {
+    categoriaActiva.value = categoriaId
+    const base =
+      categoriaId === 'todas'
+        ? preguntas.value
+        : preguntas.value.filter((p) => p.categoria === categoriaId)
+
+    // Baraja preguntas y, dentro de cada una, sus opciones.
+    preguntasJuego.value = barajar(base).map((p) => ({
+      ...p,
+      opciones: barajar(p.opciones),
+    }))
+
+    indice.value = 0
+    respuestaElegida.value = null
+    bloqueado.value = false
+    aciertos.value = 0
+    errores.value = 0
+    puntos.value = 0
+    racha.value = 0
+    rachaMax.value = 0
+    nuevoRecord.value = false
+    respuestas.value = []
+  }
+
+  /**
+   * Registra la respuesta de la pregunta actual.
+   * @param {number|null} indiceOpcion  Índice elegido, o null si se agotó el tiempo.
+   * @param {number} fraccionTiempo  Tiempo restante 0..1 (para el bonus).
+   */
+  function responder(indiceOpcion, fraccionTiempo = 0) {
+    if (bloqueado.value || !preguntaActual.value) return
+    bloqueado.value = true
+    respuestaElegida.value = indiceOpcion
+
+    const pregunta = preguntaActual.value
+    const seAgoto = indiceOpcion === null
+    const textoElegido = seAgoto ? null : pregunta.opciones[indiceOpcion]
+    const acerto = !seAgoto && textoElegido === pregunta.correcta
+
+    if (acerto) {
+      aciertos.value++
+      racha.value++
+      rachaMax.value = Math.max(rachaMax.value, racha.value)
+      // Puntos: base + bonus por rapidez + bonus por racha.
+      const bonusTiempo = Math.round(50 * fraccionTiempo)
+      const bonusRacha = (racha.value - 1) * 10
+      puntos.value += 100 + bonusTiempo + bonusRacha
+    } else {
+      errores.value++
+      racha.value = 0
+    }
+
+    respuestas.value.push({
+      id: pregunta.id,
+      pregunta: pregunta.pregunta,
+      correcta: pregunta.correcta,
+      elegida: textoElegido,
+      acerto,
+      seAgoto,
+      explicacion: pregunta.explicacion || '',
+    })
+
+    return acerto
+  }
+
+  /** Avanza a la siguiente pregunta. Devuelve false si ya no hay más. */
+  function siguiente() {
+    if (indice.value < total.value - 1) {
+      indice.value++
+      respuestaElegida.value = null
+      bloqueado.value = false
+      return true
+    }
+    return false
+  }
+
+  /** Cierra la partida y guarda el récord si corresponde. */
+  function finalizar() {
+    if (puntos.value > mejorPuntaje.value) {
+      mejorPuntaje.value = puntos.value
+      nuevoRecord.value = true
+      localStorage.setItem(CLAVE_RECORD, String(puntos.value))
+    }
+  }
+
+  return {
+    // estado de carga
+    estado,
+    titulo,
+    preguntas,
+    categorias,
+    // partida
+    categoriaActiva,
+    preguntasJuego,
+    indice,
+    preguntaActual,
+    respuestaElegida,
+    bloqueado,
+    aciertos,
+    errores,
+    puntos,
+    racha,
+    rachaMax,
+    respuestas,
+    // derivados
+    total,
+    numeroPregunta,
+    esUltima,
+    progreso,
+    porcentaje,
+    // récord
+    mejorPuntaje,
+    nuevoRecord,
+    // constantes útiles
+    SEGUNDOS_POR_PREGUNTA,
+    // acciones
+    cargar,
+    empezar,
+    responder,
+    siguiente,
+    finalizar,
+  }
+}
