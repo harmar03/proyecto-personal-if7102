@@ -23,6 +23,8 @@ const META_CATEGORIAS = {
   geografia: { nombre: 'Geografía', emoji: '🗺️' },
   cultura: { nombre: 'Cultura', emoji: '🎭' },
   historia: { nombre: 'Historia', emoji: '📜' },
+  gastronomia: { nombre: 'Gastronomía', emoji: '🍲' },
+  simbolos: { nombre: 'Símbolos', emoji: '🎺' },
 }
 
 // Fisher–Yates: baraja una copia del arreglo sin mutar el original.

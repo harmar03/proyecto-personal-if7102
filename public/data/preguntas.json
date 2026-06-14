@@ -39,6 +39,33 @@
     },
     {
       "id": 5,
+      "categoria": "naturaleza",
+      "emoji": "🏖️",
+      "pregunta": "¿Qué parque nacional combina bosque y playa con gran cantidad de monos?",
+      "opciones": ["Manuel Antonio", "Tortuguero", "Chirripó", "Corcovado"],
+      "correcta": "Manuel Antonio",
+      "explicacion": "El Parque Nacional Manuel Antonio, en Puntarenas, es famoso por sus playas y su fauna."
+    },
+    {
+      "id": 6,
+      "categoria": "naturaleza",
+      "emoji": "🐢",
+      "pregunta": "¿Qué animal marino llega a desovar a playas como Tortuguero y Ostional?",
+      "opciones": ["La tortuga", "El cocodrilo", "La iguana", "El caimán"],
+      "correcta": "La tortuga",
+      "explicacion": "Tortugas como la baula y la lora anidan cada año en las playas del Caribe y el Pacífico."
+    },
+    {
+      "id": 7,
+      "categoria": "naturaleza",
+      "emoji": "🌲",
+      "pregunta": "¿Cuál es el árbol nacional de Costa Rica?",
+      "opciones": ["Guanacaste", "Ceiba", "Roble sabana", "Cedro"],
+      "correcta": "Guanacaste",
+      "explicacion": "El árbol de Guanacaste (Enterolobium cyclocarpum) fue declarado árbol nacional en 1959."
+    },
+    {
+      "id": 8,
       "categoria": "geografia",
       "emoji": "🏙️",
       "pregunta": "¿Cuál es la capital de Costa Rica?",
@@ -47,7 +74,7 @@
       "explicacion": "San José es la capital del país desde 1823 y su principal centro político y económico."
     },
     {
-      "id": 6,
+      "id": 9,
       "categoria": "geografia",
       "emoji": "🌋",
       "pregunta": "¿Cuál es el volcán más alto de Costa Rica?",
@@ -56,7 +83,16 @@
       "explicacion": "El volcán Irazú, con 3.432 m de altura, es el punto volcánico más alto del país."
     },
     {
-      "id": 7,
+      "id": 10,
+      "categoria": "geografia",
+      "emoji": "⛰️",
+      "pregunta": "¿Cuál es el punto más alto de Costa Rica?",
+      "opciones": ["Cerro Chirripó", "Volcán Irazú", "Cerro de la Muerte", "Volcán Turrialba"],
+      "correcta": "Cerro Chirripó",
+      "explicacion": "El Cerro Chirripó alcanza los 3.820 m sobre el nivel del mar."
+    },
+    {
+      "id": 11,
       "categoria": "geografia",
       "emoji": "🗺️",
       "pregunta": "¿Cuántas provincias tiene Costa Rica?",
@@ -65,7 +101,21 @@
       "explicacion": "San José, Alajuela, Cartago, Heredia, Guanacaste, Puntarenas y Limón."
     },
     {
-      "id": 8,
+      "id": 12,
+      "categoria": "geografia",
+      "emoji": "🧭",
+      "pregunta": "¿Con qué países limita Costa Rica?",
+      "opciones": [
+        "Nicaragua y Panamá",
+        "Honduras y Panamá",
+        "Nicaragua y Colombia",
+        "Panamá y Colombia"
+      ],
+      "correcta": "Nicaragua y Panamá",
+      "explicacion": "Limita al norte con Nicaragua y al sureste con Panamá."
+    },
+    {
+      "id": 13,
       "categoria": "geografia",
       "emoji": "🌊",
       "pregunta": "¿Qué dos océanos bañan las costas de Costa Rica?",
@@ -79,7 +129,7 @@
       "explicacion": "El Caribe costarricense forma parte del océano Atlántico, en el lado opuesto al Pacífico."
     },
     {
-      "id": 9,
+      "id": 14,
       "categoria": "geografia",
       "emoji": "🌅",
       "pregunta": "¿En qué provincia se ubica la ciudad de Liberia?",
@@ -88,7 +138,7 @@
       "explicacion": "Liberia es la cabecera de la provincia de Guanacaste, conocida como 'la Ciudad Blanca'."
     },
     {
-      "id": 10,
+      "id": 15,
       "categoria": "cultura",
       "emoji": "💰",
       "pregunta": "¿Cuál es la moneda oficial de Costa Rica?",
@@ -97,7 +147,7 @@
       "explicacion": "El colón costarricense lleva su nombre en honor a Cristóbal Colón."
     },
     {
-      "id": 11,
+      "id": 16,
       "categoria": "cultura",
       "emoji": "🤙",
       "pregunta": "¿Qué frase usan los ticos como saludo y filosofía de vida?",
@@ -106,16 +156,7 @@
       "explicacion": "'Pura vida' expresa optimismo y sirve para saludar, despedirse y agradecer."
     },
     {
-      "id": 12,
-      "categoria": "cultura",
-      "emoji": "🍚",
-      "pregunta": "¿Cuál es el desayuno típico costarricense a base de arroz y frijoles?",
-      "opciones": ["Casado", "Gallo pinto", "Olla de carne", "Tamal"],
-      "correcta": "Gallo pinto",
-      "explicacion": "El gallo pinto mezcla arroz y frijoles y es el desayuno más emblemático del país."
-    },
-    {
-      "id": 13,
+      "id": 17,
       "categoria": "cultura",
       "emoji": "🇨🇷",
       "pregunta": "¿Cómo se les llama cariñosamente a los costarricenses?",
@@ -124,7 +165,25 @@
       "explicacion": "El apodo viene del uso del diminutivo '-ico' (por ejemplo, 'momentico')."
     },
     {
-      "id": 14,
+      "id": 18,
+      "categoria": "cultura",
+      "emoji": "💃",
+      "pregunta": "¿Qué baile folclórico es típico de la provincia de Guanacaste?",
+      "opciones": ["Punto Guanacasteco", "Cumbia", "Salsa", "Merengue"],
+      "correcta": "Punto Guanacasteco",
+      "explicacion": "El Punto Guanacasteco es la danza típica nacional, originaria de Guanacaste."
+    },
+    {
+      "id": 19,
+      "categoria": "cultura",
+      "emoji": "🛞",
+      "pregunta": "¿Cuál es la artesanía pintada, símbolo del trabajo tico y Patrimonio de la UNESCO?",
+      "opciones": ["La carreta típica", "La hamaca", "La máscara", "El sombrero"],
+      "correcta": "La carreta típica",
+      "explicacion": "La carreta pintada de Sarchí es Patrimonio Cultural Inmaterial de la Humanidad."
+    },
+    {
+      "id": 20,
       "categoria": "historia",
       "emoji": "🕊️",
       "pregunta": "¿En qué año abolió Costa Rica su ejército?",
@@ -133,13 +192,85 @@
       "explicacion": "Tras la guerra civil, José Figueres abolió el ejército en 1948, lo que quedó en la Constitución de 1949."
     },
     {
-      "id": 15,
+      "id": 21,
       "categoria": "historia",
       "emoji": "📜",
       "pregunta": "¿De qué país se independizó Costa Rica en 1821?",
       "opciones": ["México", "España", "Colombia", "Inglaterra"],
       "correcta": "España",
       "explicacion": "Centroamérica declaró su independencia de España el 15 de septiembre de 1821."
+    },
+    {
+      "id": 22,
+      "categoria": "historia",
+      "emoji": "🔥",
+      "pregunta": "¿Quién es el héroe nacional de la Batalla de Rivas en 1856?",
+      "opciones": ["Juan Santamaría", "Juan Mora Porras", "José Figueres", "Braulio Carrillo"],
+      "correcta": "Juan Santamaría",
+      "explicacion": "Juan Santamaría incendió el mesón en la Batalla de Rivas contra los filibusteros de Walker."
+    },
+    {
+      "id": 23,
+      "categoria": "historia",
+      "emoji": "🏅",
+      "pregunta": "¿Qué expresidente tico ganó el Premio Nobel de la Paz en 1987?",
+      "opciones": ["Óscar Arias", "José Figueres", "Rafael Calderón", "Luis Guillermo Solís"],
+      "correcta": "Óscar Arias",
+      "explicacion": "Óscar Arias recibió el Nobel de la Paz por su plan de pacificación de Centroamérica."
+    },
+    {
+      "id": 24,
+      "categoria": "gastronomia",
+      "emoji": "🍚",
+      "pregunta": "¿Cuál es el desayuno típico costarricense a base de arroz y frijoles?",
+      "opciones": ["Casado", "Gallo pinto", "Olla de carne", "Tamal"],
+      "correcta": "Gallo pinto",
+      "explicacion": "El gallo pinto mezcla arroz y frijoles y es el desayuno más emblemático del país."
+    },
+    {
+      "id": 25,
+      "categoria": "gastronomia",
+      "emoji": "🍛",
+      "pregunta": "¿Qué plato lleva arroz, frijoles, carne, plátano maduro y ensalada?",
+      "opciones": ["Casado", "Gallo pinto", "Chifrijo", "Vigorón"],
+      "correcta": "Casado",
+      "explicacion": "El casado es el almuerzo tradicional tico con varios acompañamientos en un solo plato."
+    },
+    {
+      "id": 26,
+      "categoria": "gastronomia",
+      "emoji": "🍢",
+      "pregunta": "¿Qué boca tica combina chicharrón, frijoles, arroz y pico de gallo?",
+      "opciones": ["Chifrijo", "Patacones", "Ceviche", "Tamal"],
+      "correcta": "Chifrijo",
+      "explicacion": "El chifrijo es una boca popular que mezcla chicharrón y frijoles ('chi' + 'frijo')."
+    },
+    {
+      "id": 27,
+      "categoria": "simbolos",
+      "emoji": "🇨🇷",
+      "pregunta": "¿Cuántos colores tiene la bandera de Costa Rica?",
+      "opciones": ["Dos", "Tres", "Cuatro", "Cinco"],
+      "correcta": "Tres",
+      "explicacion": "Azul, blanco y rojo; la franja roja se añadió en 1848 inspirada en la bandera de Francia."
+    },
+    {
+      "id": 28,
+      "categoria": "simbolos",
+      "emoji": "🎶",
+      "pregunta": "¿Cuál es el instrumento musical nacional de Costa Rica?",
+      "opciones": ["La marimba", "La guitarra", "El acordeón", "El violín"],
+      "correcta": "La marimba",
+      "explicacion": "La marimba fue declarada instrumento musical nacional en 1996."
+    },
+    {
+      "id": 29,
+      "categoria": "simbolos",
+      "emoji": "🐋",
+      "pregunta": "¿Qué animal fue declarado símbolo nacional de la fauna marina en 2014?",
+      "opciones": ["El manatí", "El delfín", "El tiburón", "La ballena jorobada"],
+      "correcta": "El manatí",
+      "explicacion": "El manatí, en peligro de extinción, es símbolo nacional de la fauna marina costarricense."
     }
   ]
 }
