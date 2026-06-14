@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="14" fill="#0f7a52"/>
+  <rect x="0" y="22" width="64" height="8" fill="#ffffff" opacity="0.9"/>
+  <rect x="0" y="30" width="64" height="12" fill="#1ba0d7"/>
+  <rect x="0" y="42" width="64" height="8" fill="#ffffff" opacity="0.9"/>
+  <text x="32" y="45" font-family="Segoe UI, Arial, sans-serif" font-size="38" font-weight="800"
+        text-anchor="middle" fill="#f5b700" stroke="#0f7a52" stroke-width="1.5" paint-order="stroke">?</text>
+</svg>
