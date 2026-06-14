@@ -22,6 +22,46 @@ const props = defineProps({
 const emit = defineEmits(['revancha', 'inicio'])
 
 const verRepaso = ref(false)
+const copiado = ref(false)
+
+function avisarCopiado() {
+  copiado.value = true
+  setTimeout(() => (copiado.value = false), 2000)
+}
+
+// Copia un resumen del resultado al portapapeles.
+// Usa la Clipboard API moderna y, si no está disponible, recurre a un método
+// de respaldo con un <textarea> temporal (execCommand) para mayor compatibilidad.
+async function compartir() {
+  const texto =
+    `🇨🇷 Pura Vida Quiz — Acerté ${props.aciertos}/${props.total} ` +
+    `(${props.porcentaje}%) y sumé ${props.puntaje} puntos. ¿Podés superarme?`
+
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(texto)
+      avisarCopiado()
+      return
+    } catch {
+      /* sigue al respaldo */
+    }
+  }
+
+  try {
+    const ta = document.createElement('textarea')
+    ta.value = texto
+    ta.style.position = 'fixed'
+    ta.style.opacity = '0'
+    document.body.appendChild(ta)
+    ta.focus()
+    ta.select()
+    document.execCommand('copy')
+    document.body.removeChild(ta)
+    avisarCopiado()
+  } catch {
+    copiado.value = false
+  }
+}
 
 const mensaje = computed(() => {
   if (props.porcentaje === 100) return '¡Perfecto! Sos un experto en Costa Rica 🇨🇷'
@@ -116,6 +156,9 @@ const estrellas = computed(() => {
     <div class="resultado__acciones">
       <button class="boton boton--primario" @click="emit('revancha')">🔄 Jugar de nuevo</button>
       <button class="boton boton--secundario" @click="emit('inicio')">🏠 Menú</button>
+      <button class="boton boton--secundario" @click="compartir">
+        {{ copiado ? '✅ ¡Copiado!' : '📋 Compartir' }}
+      </button>
     </div>
   </section>
 </template>
