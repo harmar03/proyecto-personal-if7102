@@ -3,14 +3,16 @@
  * GameScreen — Orquesta la partida.
  * Inyecta el controlador del quiz y el audio (provide/inject) desde App, maneja
  * el temporizador (useTimer), los eventos de teclado y mouse, reproduce los
- * efectos de sonido y avanza entre preguntas. Emite 'terminar' al acabar.
+ * efectos de sonido (incluyendo música de tensión) y avanza entre preguntas.
+ * Emite 'terminar' al acabar.
  */
-import { computed, inject, onMounted, onUnmounted } from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref } from 'vue'
 import { useTimer } from '../composables/useTimer.js'
 import ProgressBar from './ProgressBar.vue'
 import TimerBar from './TimerBar.vue'
 import StatPill from './StatPill.vue'
 import QuestionCard from './QuestionCard.vue'
+import PrizeLadder from './PrizeLadder.vue'
 
 const emit = defineEmits(['terminar'])
 
@@ -32,11 +34,16 @@ const {
   opcionesOcultas,
   dobleActivo,
   SEGUNDOS_POR_PREGUNTA,
+  PREMIOS,
+  nivelPremio,
+  premioActual,
 } = quiz
 
 // Temporizador: al agotarse, cuenta como respuesta sin elegir.
 const timer = useTimer(SEGUNDOS_POR_PREGUNTA, () => bloquearPorTiempo())
-let avanceTimeout = null
+
+// true cuando el jugador respondió y espera hacer clic en "Siguiente pregunta".
+const esperandoSiguiente = ref(false)
 
 const categoriaActual = computed(
   () =>
@@ -46,14 +53,16 @@ const categoriaActual = computed(
     }
 )
 
+// Tras responder muestra el botón "Siguiente pregunta" en vez de avanzar solo.
 function programarAvance() {
-  avanceTimeout = setTimeout(avanzar, 1600)
+  esperandoSiguiente.value = true
 }
 
 function elegir(indice) {
   if (bloqueado.value) return
   const fraccion = timer.fraccion.value
   timer.detener()
+  audio.pararMusica()
   const acerto = quiz.responder(indice, fraccion)
   audio.reproducir(acerto ? 'acierto' : 'error')
   programarAvance()
@@ -61,17 +70,25 @@ function elegir(indice) {
 
 function bloquearPorTiempo() {
   if (bloqueado.value) return
-  quiz.responder(null, 0) // sin respuesta
+  audio.pararMusica()
+  quiz.responder(null, 0)
   audio.reproducir('error')
   programarAvance()
+}
+
+function siguienteManual() {
+  esperandoSiguiente.value = false
+  avanzar()
 }
 
 function avanzar() {
   const hayMas = quiz.siguiente()
   if (hayMas) {
     timer.iniciar(SEGUNDOS_POR_PREGUNTA)
+    audio.iniciarMusica('tension')
   } else {
     quiz.finalizar()
+    audio.pararMusica()
     audio.reproducir('resultado')
     emit('terminar')
   }
@@ -88,6 +105,7 @@ function habilidadSaltar() {
   if (bloqueado.value || !habilidades.value.saltar) return
   if (quiz.saltarPregunta()) {
     timer.detener()
+    audio.pararMusica()
     avanzar()
   }
 }
@@ -95,7 +113,8 @@ function habilidadSaltar() {
 function habilidadCongelar() {
   if (bloqueado.value || !habilidades.value.congelar) return
   quiz.gastarHabilidad('congelar')
-  timer.detener() // el tiempo queda congelado en esta pregunta
+  timer.detener()
+  audio.pararMusica() // tiempo congelado = silencio dramático
 }
 
 // --- Eventos de teclado: teclas 1–4 para responder ---
@@ -110,93 +129,132 @@ function alPresionar(e) {
 onMounted(() => {
   timer.iniciar(SEGUNDOS_POR_PREGUNTA)
   window.addEventListener('keydown', alPresionar)
+  audio.iniciarMusica('tension') // música de tensión desde la primera pregunta
 })
 
 onUnmounted(() => {
-  clearTimeout(avanceTimeout)
   window.removeEventListener('keydown', alPresionar)
+  audio.pararMusica()
 })
 </script>
 
 <template>
-  <section class="juego contenedor" v-if="preguntaActual">
-    <ProgressBar :actual="numeroPregunta" :total="total" />
+  <div class="juego-layout" v-if="preguntaActual">
+    <!-- Área principal de juego -->
+    <section class="juego">
+      <ProgressBar :actual="numeroPregunta" :total="total" />
 
-    <div class="juego__hud">
-      <StatPill icono="⭐" :valor="puntos" etiqueta="pts" />
-      <StatPill icono="🔥" :valor="racha" etiqueta="racha" :destacado="racha >= 3" />
-      <StatPill v-if="dobleActivo" icono="💎" valor="2x" etiqueta="armado" destacado />
-    </div>
+      <div class="juego__hud">
+        <StatPill icono="⭐" :valor="puntos" etiqueta="pts" />
+        <StatPill icono="🔥" :valor="racha" etiqueta="racha" :destacado="racha >= 3" />
+        <StatPill v-if="dobleActivo" icono="💎" valor="2x" etiqueta="armado" destacado />
+        <!-- Premio actual: visible en móvil donde la escalera está oculta -->
+        <StatPill class="hud-premio" icono="💰" :valor="premioActual?.formato" etiqueta="nivel" destacado />
+      </div>
 
-    <TimerBar :restante="timer.restante.value" :fraccion="timer.fraccion.value" />
+      <TimerBar :restante="timer.restante.value" :fraccion="timer.fraccion.value" />
 
-    <!-- Habilidades (cada una se puede usar una vez por partida) -->
-    <div class="habilidades" role="group" aria-label="Habilidades">
-      <button
-        class="hab"
-        :disabled="bloqueado || !habilidades.cincuenta"
-        @click="quiz.usar5050()"
-        title="50:50 — elimina dos opciones incorrectas"
-      >
-        🎯 <span class="hab__txt">50:50</span>
-      </button>
-      <button
-        class="hab hab--oro"
-        :class="{ 'hab--activo': dobleActivo }"
-        :disabled="bloqueado || !habilidades.doble"
-        @click="quiz.activarDoble()"
-        title="Doble puntos — la próxima respuesta correcta vale x2"
-      >
-        💎 <span class="hab__txt">2x</span>
-      </button>
-      <button
-        class="hab"
-        :disabled="bloqueado || !habilidades.extra"
-        @click="habilidadExtra"
-        title="Tiempo extra — suma 5 segundos"
-      >
-        ⏱️ <span class="hab__txt">+5 s</span>
-      </button>
-      <button
-        class="hab"
-        :disabled="bloqueado || !habilidades.congelar"
-        @click="habilidadCongelar"
-        title="Congelar — detiene el tiempo en esta pregunta"
-      >
-        ❄️ <span class="hab__txt">Congelar</span>
-      </button>
-      <button
-        class="hab"
-        :disabled="bloqueado || !habilidades.saltar"
-        @click="habilidadSaltar"
-        title="Saltar — pasa a la siguiente sin penalizar puntos"
-      >
-        ⏭️ <span class="hab__txt">Saltar</span>
-      </button>
-    </div>
+      <!-- Habilidades (cada una se puede usar una vez por partida) -->
+      <div class="habilidades" role="group" aria-label="Habilidades">
+        <button
+          class="hab"
+          :disabled="bloqueado || !habilidades.cincuenta"
+          @click="quiz.usar5050()"
+          title="50:50 — elimina dos opciones incorrectas"
+        >
+          🎯 <span class="hab__txt">50:50</span>
+        </button>
+        <button
+          class="hab hab--oro"
+          :class="{ 'hab--activo': dobleActivo }"
+          :disabled="bloqueado || !habilidades.doble"
+          @click="quiz.activarDoble()"
+          title="Doble puntos — la próxima respuesta correcta vale x2"
+        >
+          💎 <span class="hab__txt">2x</span>
+        </button>
+        <button
+          class="hab"
+          :disabled="bloqueado || !habilidades.extra"
+          @click="habilidadExtra"
+          title="Tiempo extra — suma 5 segundos"
+        >
+          ⏱️ <span class="hab__txt">+5 s</span>
+        </button>
+        <button
+          class="hab"
+          :disabled="bloqueado || !habilidades.congelar"
+          @click="habilidadCongelar"
+          title="Congelar — detiene el tiempo en esta pregunta"
+        >
+          ❄️ <span class="hab__txt">Congelar</span>
+        </button>
+        <button
+          class="hab"
+          :disabled="bloqueado || !habilidades.saltar"
+          @click="habilidadSaltar"
+          title="Saltar — pasa a la siguiente sin penalizar puntos"
+        >
+          ⏭️ <span class="hab__txt">Saltar</span>
+        </button>
+      </div>
 
-    <Transition name="fade" mode="out-in">
-      <QuestionCard
-        :key="preguntaActual.id"
-        :pregunta="preguntaActual"
-        :categoria="categoriaActual"
-        :bloqueado="bloqueado"
-        :respuesta-elegida="respuestaElegida"
-        :ocultas="opcionesOcultas"
-        @elegir="elegir"
-      />
-    </Transition>
-  </section>
+      <Transition name="fade" mode="out-in">
+        <QuestionCard
+          :key="preguntaActual.id"
+          :pregunta="preguntaActual"
+          :categoria="categoriaActual"
+          :bloqueado="bloqueado"
+          :respuesta-elegida="respuestaElegida"
+          :ocultas="opcionesOcultas"
+          @elegir="elegir"
+        />
+      </Transition>
+
+      <!-- Botón siguiente: aparece tras responder (en vez de avance automático) -->
+      <Transition name="explica">
+        <button
+          v-if="esperandoSiguiente"
+          class="boton boton--siguiente"
+          @click="siguienteManual"
+          autofocus
+        >
+          Siguiente pregunta →
+        </button>
+      </Transition>
+    </section>
+
+    <!-- Escalera de premios (visible solo en escritorio vía CSS) -->
+    <PrizeLadder :premios="PREMIOS" :nivel="nivelPremio" />
+  </div>
 </template>
 
 <style scoped>
+/* Layout de dos columnas en escritorio (juego | escalera) */
+.juego-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 20px 2rem;
+  align-items: start;
+}
+@media (min-width: 820px) {
+  .juego-layout {
+    grid-template-columns: 1fr 190px;
+  }
+  /* Oculta el pill de premio en HUD cuando la escalera es visible */
+  .hud-premio {
+    display: none !important;
+  }
+}
+
 .juego {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding-top: 1.5rem;
-  padding-bottom: 2rem;
-  position: relative;
 }
 .juego__hud {
   display: flex;
@@ -235,7 +293,6 @@ onUnmounted(() => {
   cursor: default;
   text-decoration: line-through;
 }
-/* Poder 2x (dorado) */
 .hab--oro {
   border-color: var(--sol);
   background: color-mix(in srgb, var(--sol) 14%, var(--surface));
@@ -244,7 +301,6 @@ onUnmounted(() => {
 .hab--oro:hover:not(:disabled) {
   background: color-mix(in srgb, var(--sol) 24%, var(--surface));
 }
-/* 2x armado: resaltado y pulsante aunque ya esté "usado" */
 .hab--activo {
   opacity: 1 !important;
   text-decoration: none !important;
@@ -254,17 +310,33 @@ onUnmounted(() => {
   animation: latido2x 1s ease-in-out infinite;
 }
 @keyframes latido2x {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.05); }
 }
 @media (max-width: 380px) {
-  .hab__txt {
-    display: none;
-  }
+  .hab__txt { display: none; }
+}
+
+/* Botón "Siguiente pregunta" — estilo Millonario dorado */
+.boton--siguiente {
+  width: 100%;
+  padding: 1rem 1.6rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffd700, #f5a800);
+  color: #1a1200;
+  cursor: pointer;
+  box-shadow: 0 8px 24px -8px rgba(245, 168, 0, 0.7);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  letter-spacing: 0.02em;
+}
+.boton--siguiente:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px -8px rgba(245, 168, 0, 0.85);
+}
+.boton--siguiente:active {
+  transform: translateY(0);
 }
 </style>

@@ -130,8 +130,48 @@ export function useAudio() {
 
   function alternarSilencio() {
     silenciado.value = !silenciado.value
+    if (silenciado.value) pararMusica()
     return silenciado.value
   }
 
-  return { reproducir, silenciado, alternarSilencio }
+  // --- Música de tensión (estilo ¿Quién Quiere Ser Millonario?) ---
+  // Arpegio en Re menor que se repite mientras el jugador piensa.
+  let musicInterval = null
+  let musicBeat = 0
+  const NOTAS_TENSION = [146.83, 220, 174.61, 220, 130.81, 196, 155.56, 220]
+
+  function iniciarMusica(tipo) {
+    pararMusica()
+    if (tipo !== 'tension') return
+    musicBeat = 0
+
+    const pulsar = () => {
+      if (silenciado.value) return
+      const a = getCtx()
+      if (!a) return
+      const osc = a.createOscillator()
+      const g = a.createGain()
+      osc.type = 'sine'
+      osc.frequency.value = NOTAS_TENSION[musicBeat % NOTAS_TENSION.length]
+      g.gain.setValueAtTime(0.09, a.currentTime)
+      g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + 0.45)
+      osc.connect(g)
+      g.connect(a.destination)
+      osc.start()
+      osc.stop(a.currentTime + 0.5)
+      musicBeat++
+    }
+
+    pulsar()
+    musicInterval = setInterval(pulsar, 600)
+  }
+
+  function pararMusica() {
+    if (musicInterval) {
+      clearInterval(musicInterval)
+      musicInterval = null
+    }
+  }
+
+  return { reproducir, silenciado, alternarSilencio, iniciarMusica, pararMusica }
 }

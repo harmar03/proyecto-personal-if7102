@@ -17,6 +17,26 @@ import { ref, computed } from 'vue'
 const CLAVE_RECORD = 'puravida-quiz-record'
 const SEGUNDOS_POR_PREGUNTA = 15
 
+// Escala de premios estilo ¿Quién Quiere Ser Millonario? en colones costarricenses.
+// ♦ = nivel garantizado (el jugador se lleva al menos este monto aunque falle después).
+export const PREMIOS = [
+  { formato: '₡1.000',        garantizado: false },
+  { formato: '₡5.000',        garantizado: false },
+  { formato: '₡10.000',       garantizado: false },
+  { formato: '₡25.000',       garantizado: false },
+  { formato: '₡50.000',       garantizado: true  },
+  { formato: '₡100.000',      garantizado: false },
+  { formato: '₡250.000',      garantizado: false },
+  { formato: '₡500.000',      garantizado: false },
+  { formato: '₡1.000.000',    garantizado: false },
+  { formato: '₡2.500.000',    garantizado: true  },
+  { formato: '₡5.000.000',    garantizado: false },
+  { formato: '₡10.000.000',   garantizado: false },
+  { formato: '₡25.000.000',   garantizado: false },
+  { formato: '₡50.000.000',   garantizado: false },
+  { formato: '₡100.000.000',  garantizado: false },
+]
+
 // Metadatos de presentación de cada categoría del JSON.
 const META_CATEGORIAS = {
   naturaleza: { nombre: 'Naturaleza', emoji: '🌿' },
@@ -83,6 +103,15 @@ export function useQuiz() {
   const porcentaje = computed(() =>
     total.value ? Math.round((aciertos.value / total.value) * 100) : 0
   )
+
+  // Nivel de premio actual según el avance (0..14 sobre los 15 niveles de PREMIOS).
+  const nivelPremio = computed(() =>
+    Math.min(
+      Math.floor((indice.value / Math.max(total.value, 1)) * PREMIOS.length),
+      PREMIOS.length - 1
+    )
+  )
+  const premioActual = computed(() => PREMIOS[nivelPremio.value])
 
   // Lista de categorías con cuántas preguntas tiene cada una.
   const categorias = computed(() => {
@@ -300,6 +329,9 @@ export function useQuiz() {
     nuevoRecord,
     // constantes útiles
     SEGUNDOS_POR_PREGUNTA,
+    PREMIOS,
+    nivelPremio,
+    premioActual,
     // acciones
     cargar,
     empezar,

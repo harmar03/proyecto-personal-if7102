@@ -1,11 +1,11 @@
 <script setup>
 /**
  * QuestionCard — Tarjeta de una pregunta. Componente reutilizable.
- * Recibe la pregunta y el estado de respuesta por props, calcula el estado
- * visual de cada opción y reemite el evento 'elegir' del OptionButton hacia
- * GameScreen. Tras responder, muestra una explicación educativa.
+ * Muestra una foto de la categoría (si existe en public/images/<categoria>.jpg)
+ * o la ilustración SVG de CategoryArt como fallback. Estilo inspirado en
+ * ¿Quién Quiere Ser Millonario?
  */
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import OptionButton from './OptionButton.vue'
 import CategoryArt from './CategoryArt.vue'
 
@@ -19,9 +19,13 @@ const props = defineProps({
 
 const emit = defineEmits(['elegir'])
 
+// Intenta cargar la foto de categoría desde public/images/<categoria>.jpg.
+// Si no existe, fotoFallo se pone true y se muestra la ilustración SVG.
+const fotoFallo = ref(false)
+
 // Estado visual de cada opción según si ya se respondió.
 function estadoOpcion(i, texto) {
-  if (props.ocultas.includes(i)) return 'oculta' // eliminada por el comodín 50:50
+  if (props.ocultas.includes(i)) return 'oculta'
   if (!props.bloqueado) return 'idle'
   if (texto === props.pregunta.correcta) return 'correcta'
   if (i === props.respuestaElegida) return 'incorrecta'
@@ -38,88 +42,140 @@ const acerto = computed(
 
 <template>
   <article class="pregunta tarjeta">
-    <header class="pregunta__top">
-      <span class="pregunta__cat">
-        <span aria-hidden="true">{{ categoria.emoji }}</span> {{ categoria.nombre }}
-      </span>
-      <span class="pregunta__ilustracion" aria-hidden="true">
-        <CategoryArt :categoria="pregunta.categoria" />
-      </span>
-    </header>
-
-    <h2 class="pregunta__texto">{{ pregunta.pregunta }}</h2>
-
-    <div class="pregunta__opciones">
-      <OptionButton
-        v-for="(opcion, i) in pregunta.opciones"
-        :key="opcion"
-        :texto="opcion"
-        :indice="i"
-        :atajo="i + 1"
-        :estado="estadoOpcion(i, opcion)"
-        :bloqueado="bloqueado"
-        @elegir="emit('elegir', $event)"
+    <!-- Banner de imagen estilo Millonario -->
+    <div class="pregunta__media">
+      <img
+        v-if="!fotoFallo"
+        :src="`/images/${pregunta.categoria}.jpg`"
+        :alt="categoria.nombre"
+        class="pregunta__foto"
+        @error="fotoFallo = true"
       />
+      <!-- Fallback: ilustración SVG grande de la categoría -->
+      <div v-else class="pregunta__svg-banner" aria-hidden="true">
+        <div class="pregunta__art-wrap">
+          <CategoryArt :categoria="pregunta.categoria" />
+        </div>
+        <div class="pregunta__svg-overlay"></div>
+      </div>
+
+      <!-- Etiqueta de categoría sobre la imagen -->
+      <span class="pregunta__cat-badge">
+        <span aria-hidden="true">{{ categoria.emoji }}</span>
+        {{ categoria.nombre }}
+      </span>
     </div>
 
-    <Transition name="explica">
-      <div
-        v-if="bloqueado && pregunta.explicacion"
-        class="pregunta__explica"
-        :class="acerto ? 'es-ok' : 'es-mal'"
-      >
-        <strong>{{ acerto ? '¡Correcto! ' : 'Respuesta: ' }}</strong>
-        <span v-if="!acerto" class="pregunta__correcta">{{ pregunta.correcta }}. </span>
-        {{ pregunta.explicacion }}
+    <!-- Cuerpo: pregunta y opciones -->
+    <div class="pregunta__cuerpo">
+      <h2 class="pregunta__texto">{{ pregunta.pregunta }}</h2>
+
+      <div class="pregunta__opciones">
+        <OptionButton
+          v-for="(opcion, i) in pregunta.opciones"
+          :key="opcion"
+          :texto="opcion"
+          :indice="i"
+          :atajo="i + 1"
+          :estado="estadoOpcion(i, opcion)"
+          :bloqueado="bloqueado"
+          @elegir="emit('elegir', $event)"
+        />
       </div>
-    </Transition>
+
+      <Transition name="explica">
+        <div
+          v-if="bloqueado && pregunta.explicacion"
+          class="pregunta__explica"
+          :class="acerto ? 'es-ok' : 'es-mal'"
+        >
+          <strong>{{ acerto ? '¡Correcto! ' : 'Respuesta: ' }}</strong>
+          <span v-if="!acerto" class="pregunta__correcta">{{ pregunta.correcta }}. </span>
+          {{ pregunta.explicacion }}
+        </div>
+      </Transition>
+    </div>
   </article>
 </template>
 
 <style scoped>
 .pregunta {
-  padding: 1.6rem;
-  text-align: left;
+  overflow: hidden;
+  padding: 0;
 }
-.pregunta__top {
+
+/* --- Media banner (foto o SVG) --- */
+.pregunta__media {
+  position: relative;
+  width: 100%;
+  height: 170px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.pregunta__foto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pregunta__svg-banner {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--selva) 35%, var(--surface-2)),
+    color-mix(in srgb, var(--cielo) 25%, var(--surface-2))
+  );
+  position: relative;
 }
-.pregunta__cat {
+/* Overlay sutil que oscurece un poco para que el badge de categoría sea legible */
+.pregunta__svg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.25) 100%);
+}
+.pregunta__art-wrap {
+  width: 140px;
+  height: 140px;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.3));
+  position: relative;
+  z-index: 1;
+}
+
+/* Badge de categoría flotando sobre la imagen */
+.pregunta__cat-badge {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 0.8rem;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: 0.78rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-suave);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  letter-spacing: 0.05em;
+  color: #fff;
+  background: rgba(0,0,0,0.52);
+  backdrop-filter: blur(4px);
   padding: 0.3rem 0.7rem;
   border-radius: 999px;
 }
-.pregunta__ilustracion {
-  display: grid;
-  place-items: center;
-  width: 60px;
-  height: 60px;
-  padding: 9px;
-  border-radius: 50%;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  flex: 0 0 auto;
+
+/* --- Cuerpo de la tarjeta --- */
+.pregunta__cuerpo {
+  padding: 1.4rem 1.6rem 1.6rem;
 }
 .pregunta__texto {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   line-height: 1.35;
   margin-bottom: 1.3rem;
 }
 @media (min-width: 560px) {
   .pregunta__texto {
-    font-size: 1.45rem;
+    font-size: 1.4rem;
   }
 }
 .pregunta__opciones {
