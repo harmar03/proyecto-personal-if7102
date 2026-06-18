@@ -39,6 +39,9 @@ const {
   premioActual,
 } = quiz
 
+// El jugador puede retirarse solo si ya aseguró algún premio.
+const puedeRetirarse = computed(() => !bloqueado.value && nivelPremio.value >= 0)
+
 // Temporizador: al agotarse, cuenta como respuesta sin elegir.
 const timer = useTimer(SEGUNDOS_POR_PREGUNTA, () => bloquearPorTiempo())
 
@@ -115,6 +118,17 @@ function habilidadCongelar() {
   quiz.gastarHabilidad('congelar')
   timer.detener()
   audio.pararMusica() // tiempo congelado = silencio dramático
+}
+
+// --- Retirarse: abandona llevándose el premio asegurado ---
+function retirarse() {
+  if (!puedeRetirarse.value) return
+  if (quiz.retirarse()) {
+    timer.detener()
+    audio.pararMusica()
+    audio.reproducir('retiro') // "el jugador se lleva el dinero"
+    emit('terminar')
+  }
 }
 
 // --- Eventos de teclado: teclas 1–4 para responder ---
@@ -198,6 +212,18 @@ onUnmounted(() => {
           ⏭️ <span class="hab__txt">Saltar</span>
         </button>
       </div>
+
+      <!-- Retirarse: solo visible cuando ya hay un premio asegurado -->
+      <Transition name="explica">
+        <button
+          v-if="puedeRetirarse"
+          class="retiro"
+          @click="retirarse"
+          :title="`Retirarte y llevarte ${premioActual.formato}`"
+        >
+          🏳️ Retirarme con <strong>{{ premioActual.formato }}</strong>
+        </button>
+      </Transition>
 
       <Transition name="fade" mode="out-in">
         <QuestionCard
@@ -315,6 +341,30 @@ onUnmounted(() => {
 }
 @media (max-width: 380px) {
   .hab__txt { display: none; }
+}
+
+/* Botón "Retirarme" — discreto pero visible, color coral */
+.retiro {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--coral);
+  background: color-mix(in srgb, var(--coral) 10%, var(--surface));
+  color: var(--coral);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.2s ease;
+}
+.retiro:hover {
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--coral) 20%, var(--surface));
+}
+.retiro strong {
+  font-weight: 900;
 }
 
 /* Botón "Siguiente pregunta" — estilo Millonario dorado */

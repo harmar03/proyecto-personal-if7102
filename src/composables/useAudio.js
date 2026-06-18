@@ -91,6 +91,35 @@ export function useAudio() {
   const cacheArchivo = {}
   const archivoDisponible = {}
 
+  // Clips de un solo disparo (siempre archivo .mp3, sin síntesis de respaldo).
+  //  - entrada: jingle corto al aparecer cada pregunta.
+  //  - retiro:  suena cuando el jugador se retira llevándose el premio.
+  const CLIPS = {
+    entrada: { ruta: '/audio/entrada.mp3', vol: 0.7 },
+    retiro: { ruta: '/audio/retiro.mp3', vol: 0.85 },
+  }
+  const cacheClip = {}
+
+  function reproducirClip(tipo) {
+    const cfg = CLIPS[tipo]
+    if (!cfg) return
+    try {
+      let base = cacheClip[tipo]
+      if (!base) {
+        base = new Audio(cfg.ruta)
+        base.preload = 'auto'
+        cacheClip[tipo] = base
+      }
+      // Clonamos para permitir solapamientos sin cortar la reproducción previa.
+      const el = base.cloneNode()
+      el.volume = cfg.vol
+      const p = el.play()
+      if (p && p.catch) p.catch(() => {})
+    } catch {
+      /* sin sonido si el navegador lo bloquea */
+    }
+  }
+
   function intentarArchivo(tipo) {
     // Devuelve true si logró reproducir un archivo real existente.
     if (archivoDisponible[tipo] === false) return false
@@ -118,9 +147,14 @@ export function useAudio() {
     }
   }
 
-  /** Reproduce un efecto por nombre: 'acierto' | 'error' | 'resultado'. */
+  /** Reproduce un efecto por nombre: 'acierto'|'error'|'resultado'|'entrada'|'retiro'. */
   function reproducir(tipo) {
     if (silenciado.value) return
+    // Clips de archivo (entrada / retiro).
+    if (CLIPS[tipo]) {
+      reproducirClip(tipo)
+      return
+    }
     if (!efectos[tipo]) return
     // Si ya confirmamos que existe un archivo real, lo usamos; si no, síntesis.
     if (!intentarArchivo(tipo)) {
@@ -187,6 +221,9 @@ export function useAudio() {
     } catch {
       iniciarSintetizada()
     }
+
+    // Jingle corto de "entrada" justo después de arrancar la música de fondo.
+    reproducir('entrada')
   }
 
   function pararMusica() {

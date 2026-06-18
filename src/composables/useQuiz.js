@@ -15,6 +15,7 @@
 import { ref, computed } from 'vue'
 
 const CLAVE_RECORD = 'puravida-quiz-record'
+const CLAVE_GANADORES = 'puravida-quiz-ganadores'
 const SEGUNDOS_POR_PREGUNTA = 15
 
 // Escala de premios estilo ¿Quién Quiere Ser Millonario? en colones costarricenses.
@@ -89,6 +90,17 @@ export function useQuiz() {
   // --- Récord persistente ---
   const mejorPuntaje = ref(Number(localStorage.getItem(CLAVE_RECORD)) || 0)
   const nuevoRecord = ref(false)
+  const retirado = ref(false) // true si el jugador se retiró con su premio
+
+  // --- Salón de la fama (lista de ganadores en localStorage) ---
+  function leerGanadores() {
+    try {
+      return JSON.parse(localStorage.getItem(CLAVE_GANADORES)) || []
+    } catch {
+      return []
+    }
+  }
+  const ganadores = ref(leerGanadores())
 
   // --- Derivados ---
   const preguntaActual = computed(
@@ -104,14 +116,21 @@ export function useQuiz() {
     total.value ? Math.round((aciertos.value / total.value) * 100) : 0
   )
 
-  // Nivel de premio actual según el avance (0..14 sobre los 15 niveles de PREMIOS).
-  const nivelPremio = computed(() =>
-    Math.min(
-      Math.floor((indice.value / Math.max(total.value, 1)) * PREMIOS.length),
+  // Nivel de premio según ACIERTOS (como en el programa: subís al acertar).
+  // -1 = aún no ha ganado nada (cero aciertos).
+  const nivelPremio = computed(() => {
+    if (aciertos.value === 0) return -1
+    return Math.min(
+      Math.floor((aciertos.value / Math.max(total.value, 1)) * PREMIOS.length),
       PREMIOS.length - 1
     )
+  })
+  // Premio asegurado actual (lo que se lleva si se retira o termina ahora).
+  const premioActual = computed(() =>
+    nivelPremio.value < 0
+      ? { formato: '₡0', garantizado: false }
+      : PREMIOS[nivelPremio.value]
   )
-  const premioActual = computed(() => PREMIOS[nivelPremio.value])
 
   // Lista de categorías con cuántas preguntas tiene cada una.
   const categorias = computed(() => {
@@ -180,6 +199,7 @@ export function useQuiz() {
     }
     opcionesOcultas.value = []
     dobleActivo.value = false
+    retirado.value = false
   }
 
   /** Habilidad 50:50: oculta dos opciones incorrectas de la pregunta actual. */
@@ -287,6 +307,19 @@ export function useQuiz() {
     return false
   }
 
+  /**
+   * Retirarse: el jugador abandona y se lleva el premio asegurado actual.
+   * Solo posible si ya ganó algo (nivelPremio >= 0) y no está respondiendo.
+   * Devuelve true si se concretó el retiro.
+   */
+  function retirarse() {
+    if (bloqueado.value || nivelPremio.value < 0) return false
+    bloqueado.value = true
+    retirado.value = true
+    finalizar()
+    return true
+  }
+
   /** Cierra la partida y guarda el récord si corresponde. */
   function finalizar() {
     if (puntos.value > mejorPuntaje.value) {
@@ -294,6 +327,28 @@ export function useQuiz() {
       nuevoRecord.value = true
       localStorage.setItem(CLAVE_RECORD, String(puntos.value))
     }
+  }
+
+  /** Guarda un ganador en el salón de la fama (persistido en localStorage). */
+  function guardarGanador(nombre) {
+    const limpio = String(nombre || '').trim().slice(0, 24)
+    if (!limpio) return false
+    const entrada = {
+      nombre: limpio,
+      premio: premioActual.value.formato,
+      nivel: nivelPremio.value,
+      puntos: puntos.value,
+      aciertos: aciertos.value,
+      total: total.value,
+      retirado: retirado.value,
+      fecha: new Date().toISOString(),
+    }
+    const lista = [...ganadores.value, entrada]
+    // Ordena por nivel de premio (desc) y, a igualdad, por puntos.
+    lista.sort((a, b) => b.nivel - a.nivel || b.puntos - a.puntos)
+    ganadores.value = lista.slice(0, 20) // top 20
+    localStorage.setItem(CLAVE_GANADORES, JSON.stringify(ganadores.value))
+    return true
   }
 
   return {
@@ -327,6 +382,8 @@ export function useQuiz() {
     // récord
     mejorPuntaje,
     nuevoRecord,
+    retirado,
+    ganadores,
     // constantes útiles
     SEGUNDOS_POR_PREGUNTA,
     PREMIOS,
@@ -342,5 +399,7 @@ export function useQuiz() {
     gastarHabilidad,
     saltarPregunta,
     activarDoble,
+    retirarse,
+    guardarGanador,
   }
 }

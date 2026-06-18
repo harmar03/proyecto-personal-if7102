@@ -63,6 +63,8 @@ licencia libre de uso.
 | Recurso | Descripción | Origen / Licencia |
 | ------- | ----------- | ----------------- |
 | `public/audio/millonario.mp3` | Música de tensión que suena en bucle durante cada pregunta | Tema musical del programa *¿Quién Quiere Ser Millonario?* — **material con derechos de autor**, usado solo con fines educativos y sin fin de lucro dentro de este proyecto académico. **No es de producción propia.** |
+| `public/audio/entrada.mp3` | Jingle corto al aparecer cada pregunta | Sonido del programa *¿Quién Quiere Ser Millonario?* — **material con derechos de autor**, uso educativo. **No es de producción propia.** |
+| `public/audio/retiro.mp3` | Suena cuando el jugador se retira con su premio | Sonido del programa *¿Quién Quiere Ser Millonario?* — **material con derechos de autor**, uso educativo. **No es de producción propia.** |
 
 > Si este archivo no está presente, el juego cae automáticamente en un arpegio
 > de tensión **sintetizado con la Web Audio API** (producción propia), definido

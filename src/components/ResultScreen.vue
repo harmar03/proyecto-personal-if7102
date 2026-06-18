@@ -5,8 +5,35 @@
  * componente hijo) y emite 'revancha' o 'inicio'. Incluye un anillo de progreso
  * en SVG y un repaso educativo de las preguntas.
  */
-import { ref, computed } from 'vue'
+import { ref, computed, inject } from 'vue'
 import StatPill from './StatPill.vue'
+
+// Inyectado desde App: premio ganado, estado de retiro y lista de ganadores.
+const quiz = inject('quiz')
+const { premioActual, retirado, ganadores } = quiz
+
+// --- Salón de la fama ---
+const nombre = ref('')
+const guardado = ref(false)
+
+function guardarEnSalon() {
+  if (quiz.guardarGanador(nombre.value)) {
+    guardado.value = true
+  }
+}
+
+function fechaCorta(iso) {
+  try {
+    return new Date(iso).toLocaleDateString('es-CR', {
+      day: '2-digit',
+      month: 'short',
+    })
+  } catch {
+    return ''
+  }
+}
+
+const medalla = ['🥇', '🥈', '🥉']
 
 const props = defineProps({
   puntaje: { type: Number, required: true }, // puntos totales
@@ -93,7 +120,13 @@ const estrellas = computed(() => {
   <section class="resultado contenedor">
     <div v-if="nuevoRecord" class="resultado__record">🏆 ¡Nuevo récord!</div>
 
-    <h1 class="resultado__titulo">Resultado</h1>
+    <h1 class="resultado__titulo">{{ retirado ? '¡Te retiraste!' : 'Resultado' }}</h1>
+
+    <!-- Premio ganado (estilo Millonario) -->
+    <div class="premio" :class="{ 'premio--retiro': retirado }">
+      <span class="premio__label">{{ retirado ? '🏳️ Te llevás' : '🏆 Ganaste' }}</span>
+      <span class="premio__monto">{{ premioActual.formato }}</span>
+    </div>
 
     <!-- Anillo de puntuación (SVG) -->
     <div class="anillo">
@@ -154,6 +187,46 @@ const estrellas = computed(() => {
       </ul>
     </Transition>
 
+    <!-- Salón de la fama -->
+    <section class="salon">
+      <h2 class="salon__titulo">🏆 Salón de la fama</h2>
+
+      <!-- Formulario para registrar al ganador (se oculta tras guardar) -->
+      <form v-if="!guardado" class="salon__form" @submit.prevent="guardarEnSalon">
+        <input
+          v-model="nombre"
+          class="salon__input"
+          type="text"
+          maxlength="24"
+          placeholder="Tu nombre"
+          aria-label="Tu nombre para el salón de la fama"
+        />
+        <button class="boton boton--primario salon__guardar" :disabled="!nombre.trim()">
+          Guardar
+        </button>
+      </form>
+      <p v-else class="salon__ok">✅ ¡Guardado, {{ nombre }}!</p>
+
+      <!-- Lista de ganadores -->
+      <ol v-if="ganadores.length" class="salon__lista">
+        <li
+          v-for="(g, i) in ganadores"
+          :key="g.fecha + g.nombre"
+          class="salon__fila"
+          :class="{ 'salon__fila--top': i < 3 }"
+        >
+          <span class="salon__pos">{{ medalla[i] || (i + 1) }}</span>
+          <span class="salon__nombre">
+            {{ g.nombre }}
+            <span v-if="g.retirado" class="salon__tag" title="Se retiró">🏳️</span>
+          </span>
+          <span class="salon__premio">{{ g.premio }}</span>
+          <span class="salon__fecha">{{ fechaCorta(g.fecha) }}</span>
+        </li>
+      </ol>
+      <p v-else class="salon__vacio">Aún no hay ganadores. ¡Sé el primero!</p>
+    </section>
+
     <div class="resultado__acciones">
       <button class="boton boton--primario" @click="emit('revancha')">🔄 Jugar de nuevo</button>
       <button class="boton boton--secundario" @click="emit('inicio')">🏠 Menú</button>
@@ -186,6 +259,39 @@ const estrellas = computed(() => {
 .resultado__titulo {
   font-size: clamp(1.8rem, 6vw, 2.4rem);
   margin-bottom: 1rem;
+}
+
+/* --- Premio ganado --- */
+.premio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.7rem 1.6rem;
+  margin-bottom: 1.3rem;
+  border-radius: var(--radio);
+  background: linear-gradient(135deg, #ffd700, #f5a800);
+  color: #1a1200;
+  box-shadow: 0 10px 26px -10px rgba(245, 168, 0, 0.7);
+  animation: aparecer 0.5s ease;
+}
+.premio--retiro {
+  background: linear-gradient(135deg, var(--cielo), #1487b8);
+  color: #fff;
+  box-shadow: 0 10px 26px -10px rgba(27, 160, 215, 0.7);
+}
+.premio__label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+}
+.premio__monto {
+  font-size: 1.9rem;
+  font-weight: 900;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 .anillo {
   position: relative;
@@ -299,6 +405,99 @@ const estrellas = computed(() => {
   margin-top: 0.35rem;
   line-height: 1.5;
 }
+/* --- Salón de la fama --- */
+.salon {
+  width: 100%;
+  max-width: 460px;
+  margin-bottom: 1.6rem;
+  text-align: left;
+}
+.salon__titulo {
+  font-size: 1.1rem;
+  text-align: center;
+  margin-bottom: 0.9rem;
+}
+.salon__form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.salon__input {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-fuerte);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+}
+.salon__input:focus-visible {
+  border-color: var(--cielo);
+}
+.salon__guardar {
+  padding: 0.7rem 1.4rem;
+  font-size: 0.95rem;
+}
+.salon__guardar:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.salon__ok {
+  text-align: center;
+  font-weight: 700;
+  color: var(--selva);
+  margin-bottom: 1rem;
+}
+.salon__lista {
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+}
+.salon__fila {
+  display: grid;
+  grid-template-columns: 2rem 1fr auto auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: var(--radio-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 0.92rem;
+}
+.salon__fila--top {
+  background: color-mix(in srgb, var(--sol) 12%, var(--surface));
+  border-color: color-mix(in srgb, var(--sol) 40%, var(--border));
+}
+.salon__pos {
+  font-weight: 800;
+  text-align: center;
+  font-size: 1.05rem;
+}
+.salon__nombre {
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.salon__tag {
+  font-size: 0.8rem;
+}
+.salon__premio {
+  font-weight: 800;
+  color: var(--acento);
+  font-variant-numeric: tabular-nums;
+}
+.salon__fecha {
+  font-size: 0.78rem;
+  color: var(--text-tenue);
+}
+.salon__vacio {
+  text-align: center;
+  color: var(--text-suave);
+  font-size: 0.92rem;
+}
+
 .resultado__acciones {
   display: flex;
   flex-wrap: wrap;
