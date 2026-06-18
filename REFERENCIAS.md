@@ -58,17 +58,32 @@ código cae automáticamente en la síntesis de respaldo (también propia).
 > Respaldo sintetizado (producción propia) si los `.mp3` no están presentes:
 > `acierto` = arpegio ascendente, `error` = dos tonos graves descendentes.
 
-### Música de fondo — **material de terceros**
+### Música y efectos de programa — **material de terceros**
 
 | Recurso | Descripción | Origen / Licencia |
 | ------- | ----------- | ----------------- |
-| `public/audio/millonario.mp3` | Música de tensión que suena en bucle durante cada pregunta | Tema musical del programa *¿Quién Quiere Ser Millonario?* — **material con derechos de autor**, usado solo con fines educativos y sin fin de lucro dentro de este proyecto académico. **No es de producción propia.** |
-| `public/audio/entrada.mp3` | Jingle corto al aparecer cada pregunta | Sonido del programa *¿Quién Quiere Ser Millonario?* — **material con derechos de autor**, uso educativo. **No es de producción propia.** |
-| `public/audio/retiro.mp3` | Suena cuando el jugador se retira con su premio | Sonido del programa *¿Quién Quiere Ser Millonario?* — **material con derechos de autor**, uso educativo. **No es de producción propia.** |
+| `public/audio/nueva-pregunta.mp3` | Jingle corto al aparecer cada pregunta | Sonido del programa *¿Quién Quiere Ser Millonario?* — **material con derechos de autor**, usado solo con fines educativos y sin fin de lucro dentro de este proyecto académico. **No es de producción propia.** |
+| `public/audio/llamada.mp3` | Música de tensión en bucle mientras el jugador piensa (suena encadenada luego del jingle de entrada) | Sonido del programa *¿Quién Quiere Ser Millonario?* — **material con derechos de autor**, uso educativo. **No es de producción propia.** |
+| `public/audio/dinero.mp3` | Suena cuando el jugador se retira con su premio o gana todas las preguntas | Sonido del programa *¿Quién Quiere Ser Millonario?* — **material con derechos de autor**, uso educativo. **No es de producción propia.** |
 
-> Si este archivo no está presente, el juego cae automáticamente en un arpegio
+> Si los archivos no están presentes, el juego cae automáticamente en un arpegio
 > de tensión **sintetizado con la Web Audio API** (producción propia), definido
 > en `src/composables/useAudio.js`.
+
+### Fotos decorativas — **Pexels**
+
+Las fotos se usan en la galería de la pantalla de inicio y como imagen héroe en la
+pantalla de resultados. Descargadas de [pexels.com](https://www.pexels.com) con
+Licencia Pexels (uso libre, atribución voluntaria).
+
+| Archivo | Descripción | Fotógrafo / ID en Pexels |
+| ------- | ----------- | ------------------------ |
+| `public/images/geografia.jpg` | Vista aérea del Volcán Arenal al atardecer | Jean Paul Montanaro |
+| `public/images/naturaleza.jpg` | Volcán Arenal con flores tropicales | Chiaroscuro |
+| `public/images/historia.jpg` | Carreta de bueyes pintada (símbolo cultural) | tkirkgoz |
+| `public/images/cultura.jpg` | Bote azul en playa caribeña costarricense | Ghassen Baccar |
+| `public/images/gastronomia.jpg` | Casado (plato típico costarricense) | Nano Erdozain |
+| `public/images/simbolos.jpg` | Marimba (instrumento símbolo nacional) | Karola G. (ID 7285475) |
 
 ### Imágenes e ilustraciones — **producción propia**
 
@@ -95,7 +110,7 @@ propia. Datos verificados con fuentes de referencia general:
 
 ## 5. Uso de Inteligencia Artificial
 
-Se usó **Claude (Anthropic)** como apoyo para:
+Se utilizó **Claude Code (Anthropic)** como apoyo para:
 
 - Estructurar el proyecto en componentes y composables.
 - Entender y aplicar correctamente `provide/inject`, `<Transition>` y la

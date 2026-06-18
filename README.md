@@ -15,20 +15,22 @@ historia), construido con **Vue 3 + Vite**. Proyecto Personal del curso.
 
 - **Tres pantallas**: inicio → juego → resultado, con transiciones animadas.
 - **29 preguntas** en **6 categorías** (Naturaleza, Geografía, Cultura, Historia,
-  Gastronomía y Símbolos), seleccionables o todas juntas.
+  Gastronomía y Símbolos). Cada partida selecciona **15 al azar** de todo el banco.
 - **Temporizador** de 15 s por pregunta con barra visual y auto-avance.
 - **Puntuación con estrategia**: puntos base + bonus por rapidez + bonus por
   racha de aciertos consecutivos.
 - **5 poderes** (cada uno una vez por partida): 50:50, doble puntos (2x),
   +5 s, congelar tiempo y saltar.
+- **Escalera de premios** estilo *¿Quién Quiere Ser Millonario?*: hasta ₡100.000.000.
+- **Retirarse**: el jugador puede tomar el dinero acumulado en cualquier momento.
 - **Compartir resultado** al portapapeles (con método de respaldo).
 - **Preguntas y opciones barajadas** en cada partida (nunca sale igual).
-- **Efectos de sonido sintetizados** en vivo con la Web Audio API
-  (acierto / error / resultado) — *producción propia*, sin archivos externos.
+- **Música y efectos de sonido**: jingle de entrada, música de tensión y efectos
+  de acierto/error con archivos `.mp3` (Web Audio API como respaldo sintetizado).
 - **Repaso educativo** al final: muestra qué se falló y la explicación de cada
   respuesta correcta.
+- **Salón de la fama**: guarda los mejores puntajes en `localStorage`.
 - **Modo claro / oscuro** con persistencia en `localStorage`.
-- **Mejor puntaje** guardado entre partidas (`localStorage`).
 - **Accesibilidad**: se juega con mouse o con las teclas `1`–`4`; respeta
   `prefers-reduced-motion`; etiquetas ARIA en controles.
 - **Responsivo**: una sola columna en móvil, dos en escritorio.
@@ -110,27 +112,48 @@ proyecto-personal-if7102/
 
 ## 🎬 Multimedia
 
-- **Sonido (3 efectos):** acierto, error y resultado, **sintetizados con la Web
-  Audio API** (osciladores) → producción propia. Se pueden sustituir por
-  archivos `.mp3` en `public/audio/` sin tocar el código.
-- **Imágenes/ilustraciones:** ilustración SVG del paisaje tico en la pantalla de
-  inicio, anillo de resultados en SVG, favicon e íconos emoji por pregunta —
-  todo de producción propia o glifos estándar.
+- **Sonido:** efectos de acierto (`acierto.mp3`) y error (`error.mp3`); música de
+  entrada por pregunta (`nueva-pregunta.mp3`) seguida de música de tensión en bucle
+  (`llamada.mp3`); sonido de cobro de premio (`dinero.mp3`). La Web Audio API
+  actúa como respaldo sintetizado si algún archivo falta.
+- **Fotos decorativas:** galería en la pantalla de inicio y héroe en resultados,
+  usando fotos de Costa Rica de Pexels (Licencia Pexels, uso libre). Ver
+  `REFERENCIAS.md` para los créditos completos.
+- **Ilustraciones SVG:** paisaje tico (volcán, palmera, tucán) en la pantalla de
+  inicio; anillo de progreso en resultados; favicon — todo de producción propia.
+- **Íconos:** emojis Unicode estándar (uso libre).
 
 ---
 
 ## 📋 Cómo se juega
 
-1. Elegí una categoría y tocá **¡Comenzar!**.
+1. Tocá **¡Comenzar!** en la pantalla de inicio.
 2. Respondé cada pregunta antes de que se acabe el tiempo (mouse o teclas 1-4).
 3. Ganá más puntos respondiendo rápido y encadenando aciertos (racha 🔥).
-4. Al final, revisá tu repaso y tratá de superar tu récord.
+4. Podés **retirarte** en cualquier momento para asegurar tu premio acumulado.
+5. Al final, revisá tu repaso y entrá al salón de la fama.
 
 ---
 
 ## 📸 Capturas de pantalla
 
-> Inicio, juego y resultados (claro y oscuro). _Agregar imágenes en `docs/`._
+### Pantalla de inicio
+![Inicio](docs/inicio.png)
+
+### Juego — pregunta en curso
+![Pregunta en curso](docs/juego-pregunta.png)
+
+### Juego — respuesta correcta
+![Respuesta correcta](docs/juego-correcto.png)
+
+### Juego — respuesta incorrecta
+![Respuesta incorrecta](docs/juego-incorrecto.png)
+
+### Resultado — partida perdida
+![Resultado perdido](docs/resultado-perdio.png)
+
+### Resultado — salón de la fama
+![Salón de la fama](docs/resultado-salon-fama.png)
 
 ---
 
