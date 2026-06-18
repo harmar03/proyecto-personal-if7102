@@ -1,14 +1,14 @@
 <script setup>
 /**
  * StartScreen — Pantalla de inicio.
- * Recibe por props las categorías, el mejor puntaje y el estado de carga.
- * Permite elegir categoría (estado reactivo local) y emite 'iniciar' con la
- * categoría elegida, o 'reintentar' si la carga del JSON falló.
+ * Muestra el récord, el banco de preguntas por categoría (solo informativo) y
+ * arranca un juego general de 15 preguntas. Emite 'iniciar' (sin categoría: el
+ * juego siempre es general) o 'reintentar' si la carga del JSON falló.
  */
-import { ref } from 'vue'
+import { computed } from 'vue'
 import StatPill from './StatPill.vue'
 
-defineProps({
+const props = defineProps({
   categorias: { type: Array, default: () => [] },
   mejorPuntaje: { type: Number, default: 0 },
   estado: { type: String, default: 'cargando' },
@@ -16,7 +16,11 @@ defineProps({
 
 const emit = defineEmits(['iniciar', 'reintentar'])
 
-const seleccion = ref('todas')
+// Solo las categorías reales (sin el comodín "Todas"), para mostrar cuántas
+// preguntas hay de cada tema.
+const categoriasInfo = computed(() =>
+  props.categorias.filter((c) => c.id !== 'todas')
+)
 </script>
 
 <template>
@@ -81,31 +85,30 @@ const seleccion = ref('todas')
       />
 
       <div class="inicio__categorias">
-        <p class="inicio__label">Elegí una categoría</p>
+        <p class="inicio__label">Banco de preguntas</p>
         <div class="chips">
-          <button
-            v-for="cat in categorias"
+          <span
+            v-for="cat in categoriasInfo"
             :key="cat.id"
-            class="chip"
-            :class="{ 'chip--activo': seleccion === cat.id }"
-            @click="seleccion = cat.id"
+            class="chip chip--info"
           >
             <span aria-hidden="true">{{ cat.emoji }}</span>
             {{ cat.nombre }}
             <span class="chip__n">{{ cat.cantidad }}</span>
-          </button>
+          </span>
         </div>
       </div>
 
       <ul class="inicio__reglas">
-        <li>⏱️ <strong>15 s</strong> por pregunta</li>
-        <li>⚡ Respondé rápido para ganar bonus</li>
-        <li>🔥 Encadená aciertos para subir tu racha</li>
-        <li>🎯 Tenés 5 poderes: <strong>50:50</strong>, <strong>2x</strong>, <strong>+5 s</strong>, <strong>congelar</strong> y <strong>saltar</strong></li>
+        <li>🎬 <strong>15 preguntas</strong> al azar — cada partida es distinta</li>
+        <li>💰 Subí la escalera: cada acierto vale más (hasta <strong>₡100.000.000</strong>)</li>
+        <li>⏱️ <strong>15 s</strong> por pregunta + bonus por rapidez</li>
+        <li>🏳️ Podés <strong>retirarte</strong> y llevarte el premio asegurado</li>
+        <li>🎯 5 poderes: <strong>50:50</strong>, <strong>2x</strong>, <strong>+5 s</strong>, <strong>congelar</strong> y <strong>saltar</strong></li>
         <li>⌨️ Usá las teclas <kbd>1</kbd>–<kbd>4</kbd> o el mouse</li>
       </ul>
 
-      <button class="boton boton--primario inicio__jugar" @click="emit('iniciar', seleccion)">
+      <button class="boton boton--primario inicio__jugar" @click="emit('iniciar')">
         ¡Comenzar! ▶
       </button>
     </template>

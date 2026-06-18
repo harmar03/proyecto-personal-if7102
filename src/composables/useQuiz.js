@@ -142,6 +142,12 @@ export function useQuiz() {
     return { formato: '₡0', garantizado: false }
   })
 
+  // Premio que el jugador se lleva realmente a casa: si perdió, el garantizado;
+  // si se retiró o completó, el del nivel alcanzado.
+  const premioFinal = computed(() =>
+    perdio.value ? premioGarantizado.value : premioActual.value
+  )
+
   // Lista de categorías con cuántas preguntas tiene cada una.
   const categorias = computed(() => {
     const conteo = {}
@@ -350,14 +356,18 @@ export function useQuiz() {
   function guardarGanador(nombre) {
     const limpio = String(nombre || '').trim().slice(0, 24)
     if (!limpio) return false
+    // Premio real a casa y su nivel (índice en PREMIOS, -1 si es ₡0).
+    const prem = premioFinal.value
+    const nivelFinal = PREMIOS.indexOf(prem)
     const entrada = {
       nombre: limpio,
-      premio: premioActual.value.formato,
-      nivel: nivelPremio.value,
+      premio: prem.formato,
+      nivel: nivelFinal,
       puntos: puntos.value,
       aciertos: aciertos.value,
       total: total.value,
       retirado: retirado.value,
+      perdio: perdio.value,
       fecha: new Date().toISOString(),
     }
     const lista = [...ganadores.value, entrada]
@@ -408,6 +418,7 @@ export function useQuiz() {
     nivelPremio,
     premioActual,
     premioGarantizado,
+    premioFinal,
     // acciones
     cargar,
     empezar,

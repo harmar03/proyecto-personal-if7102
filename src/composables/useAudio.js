@@ -185,48 +185,44 @@ export function useAudio() {
     return silenciado.value
   }
 
-  // --- Música de tensión (estilo ¿Quién Quiere Ser Millonario?) ---
-  // Reproduce en bucle el archivo public/audio/millonario.mp3 mientras el
-  // jugador piensa la respuesta. Si el archivo no existe o falla, cae en un
-  // arpegio sintetizado de respaldo (Web Audio API).
+  // --- Música al entrar a una pregunta (estilo ¿Quién Quiere Ser Millonario?) ---
+  // Reproduce UNA sola vez el clip public/audio/nueva-pregunta.mp3 al aparecer
+  // cada pregunta. NO se repite en bucle: suena solo al entrar y se detiene
+  // cuando el jugador responde. Si el archivo falla, cae en un arpegio
+  // sintetizado corto de respaldo (Web Audio API), también de un solo disparo.
   let musicaEl = null // elemento <audio> del mp3
-  let musicInterval = null // respaldo sintetizado
-  let musicBeat = 0
-  const NOTAS_TENSION = [146.83, 220, 174.61, 220, 130.81, 196, 155.56, 220]
-  const RUTA_MUSICA = '/audio/millonario.mp3'
+  const RUTA_MUSICA = '/audio/nueva-pregunta.mp3'
 
   function iniciarSintetizada() {
-    musicBeat = 0
-    const pulsar = () => {
-      if (silenciado.value) return
-      const a = getCtx()
-      if (!a) return
+    // Respaldo: breve arpegio de tensión que suena una vez (no en bucle).
+    const a = getCtx()
+    if (!a) return
+    const notas = [146.83, 220, 174.61, 220, 130.81, 196]
+    notas.forEach((f, i) => {
       const osc = a.createOscillator()
       const g = a.createGain()
       osc.type = 'sine'
-      osc.frequency.value = NOTAS_TENSION[musicBeat % NOTAS_TENSION.length]
-      g.gain.setValueAtTime(0.09, a.currentTime)
-      g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + 0.45)
+      osc.frequency.value = f
+      const t = a.currentTime + i * 0.18
+      g.gain.setValueAtTime(0.09, t)
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.4)
       osc.connect(g)
       g.connect(a.destination)
-      osc.start()
-      osc.stop(a.currentTime + 0.5)
-      musicBeat++
-    }
-    pulsar()
-    musicInterval = setInterval(pulsar, 600)
+      osc.start(t)
+      osc.stop(t + 0.45)
+    })
   }
 
   function iniciarMusica(tipo) {
     pararMusica()
     if (tipo !== 'tension' || silenciado.value) return
 
-    // Intenta el archivo real primero.
+    // Reproduce el clip una sola vez (sin bucle).
     try {
       if (!musicaEl) {
         musicaEl = new Audio(RUTA_MUSICA)
-        musicaEl.loop = true
-        musicaEl.volume = 0.45
+        musicaEl.loop = false // <-- clave: suena UNA vez al entrar
+        musicaEl.volume = 0.5
         musicaEl.preload = 'auto'
       }
       musicaEl.currentTime = 0
@@ -238,29 +234,12 @@ export function useAudio() {
     } catch {
       iniciarSintetizada()
     }
-
-    // Jingle corto de "entrada" justo después de arrancar la música de fondo.
-    reproducir('entrada')
   }
 
   function pararMusica() {
     if (musicaEl) {
       musicaEl.pause()
       musicaEl.currentTime = 0
-    }
-    // Corta también el jingle de entrada para que no se encime al cambiar.
-    if (entradaEl) {
-      try {
-        entradaEl.pause()
-        entradaEl.currentTime = 0
-      } catch {
-        /* noop */
-      }
-      entradaEl = null
-    }
-    if (musicInterval) {
-      clearInterval(musicInterval)
-      musicInterval = null
     }
   }
 

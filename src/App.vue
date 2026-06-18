@@ -34,7 +34,6 @@ const {
   rachaMax,
   nuevoRecord,
   respuestas,
-  categoriaActiva,
 } = quiz
 const { silenciado } = audio
 
@@ -42,15 +41,15 @@ const pantalla = ref('inicio') // 'inicio' | 'juego' | 'resultado'
 
 onMounted(quiz.cargar)
 
-function iniciar(categoria) {
-  quiz.empezar(categoria)
+function iniciar() {
+  quiz.empezar()
   pantalla.value = 'juego'
 }
 function terminar() {
   pantalla.value = 'resultado'
 }
 function revancha() {
-  quiz.empezar(categoriaActiva.value)
+  quiz.empezar()
   pantalla.value = 'juego'
 }
 function alInicio() {
