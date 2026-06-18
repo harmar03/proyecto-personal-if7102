@@ -68,7 +68,12 @@ function elegir(indice) {
   audio.pararMusica()
   const acerto = quiz.responder(indice, fraccion)
   audio.reproducir(acerto ? 'acierto' : 'error')
-  programarAvance()
+  if (acerto) {
+    programarAvance()
+  } else {
+    // Fallo: muestra la respuesta correcta 2 s y termina el juego.
+    setTimeout(terminarPorError, 2000)
+  }
 }
 
 function bloquearPorTiempo() {
@@ -76,7 +81,13 @@ function bloquearPorTiempo() {
   audio.pararMusica()
   quiz.responder(null, 0)
   audio.reproducir('error')
-  programarAvance()
+  // Tiempo agotado = fallo: misma mecánica que respuesta incorrecta.
+  setTimeout(terminarPorError, 2000)
+}
+
+function terminarPorError() {
+  quiz.perder()
+  emit('terminar')
 }
 
 function siguienteManual() {

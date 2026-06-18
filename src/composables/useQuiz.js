@@ -17,6 +17,8 @@ import { ref, computed } from 'vue'
 const CLAVE_RECORD = 'puravida-quiz-record'
 const CLAVE_GANADORES = 'puravida-quiz-ganadores'
 const SEGUNDOS_POR_PREGUNTA = 15
+// El juego siempre es general: 15 preguntas (uno por nivel de la escalera).
+const PREGUNTAS_POR_PARTIDA = 15
 
 // Escala de premios estilo ¿Quién Quiere Ser Millonario? en colones costarricenses.
 // ♦ = nivel garantizado (el jugador se lleva al menos este monto aunque falle después).
@@ -91,6 +93,7 @@ export function useQuiz() {
   const mejorPuntaje = ref(Number(localStorage.getItem(CLAVE_RECORD)) || 0)
   const nuevoRecord = ref(false)
   const retirado = ref(false) // true si el jugador se retiró con su premio
+  const perdio = ref(false) // true si el juego terminó por una respuesta incorrecta
 
   // --- Salón de la fama (lista de ganadores en localStorage) ---
   function leerGanadores() {
@@ -116,14 +119,11 @@ export function useQuiz() {
     total.value ? Math.round((aciertos.value / total.value) * 100) : 0
   )
 
-  // Nivel de premio según ACIERTOS (como en el programa: subís al acertar).
-  // -1 = aún no ha ganado nada (cero aciertos).
+  // Nivel de premio según ACIERTOS: cada acierto = un escalón (1 a 1 con los 15
+  // niveles, como en el programa). -1 = aún no ha ganado nada (cero aciertos).
   const nivelPremio = computed(() => {
     if (aciertos.value === 0) return -1
-    return Math.min(
-      Math.floor((aciertos.value / Math.max(total.value, 1)) * PREMIOS.length),
-      PREMIOS.length - 1
-    )
+    return Math.min(aciertos.value - 1, PREMIOS.length - 1)
   })
   // Premio asegurado actual (lo que se lleva si se retira o termina ahora).
   const premioActual = computed(() =>
@@ -131,6 +131,16 @@ export function useQuiz() {
       ? { formato: '₡0', garantizado: false }
       : PREMIOS[nivelPremio.value]
   )
+
+  // Si el jugador falla, cae al último nivel GARANTIZADO que haya superado (o ₡0).
+  const premioGarantizado = computed(() => {
+    const nivel = nivelPremio.value
+    if (nivel < 0) return { formato: '₡0', garantizado: false }
+    for (let i = nivel; i >= 0; i--) {
+      if (PREMIOS[i].garantizado) return PREMIOS[i]
+    }
+    return { formato: '₡0', garantizado: false }
+  })
 
   // Lista de categorías con cuántas preguntas tiene cada una.
   const categorias = computed(() => {
@@ -167,18 +177,18 @@ export function useQuiz() {
   }
 
   // --- Iniciar una partida ---
-  function empezar(categoriaId = 'todas') {
-    categoriaActiva.value = categoriaId
-    const base =
-      categoriaId === 'todas'
-        ? preguntas.value
-        : preguntas.value.filter((p) => p.categoria === categoriaId)
+  // Juego general: toma 15 preguntas al azar de TODO el banco. Como se barajan y
+  // se recortan cada vez, casi nunca sale la misma combinación dos veces.
+  function empezar() {
+    categoriaActiva.value = 'todas'
 
-    // Baraja preguntas y, dentro de cada una, sus opciones.
-    preguntasJuego.value = barajar(base).map((p) => ({
-      ...p,
-      opciones: barajar(p.opciones),
-    }))
+    // Baraja todo el banco, recorta a 15 y baraja las opciones de cada una.
+    preguntasJuego.value = barajar(preguntas.value)
+      .slice(0, PREGUNTAS_POR_PARTIDA)
+      .map((p) => ({
+        ...p,
+        opciones: barajar(p.opciones),
+      }))
 
     indice.value = 0
     respuestaElegida.value = null
@@ -200,6 +210,7 @@ export function useQuiz() {
     opcionesOcultas.value = []
     dobleActivo.value = false
     retirado.value = false
+    perdio.value = false
   }
 
   /** Habilidad 50:50: oculta dos opciones incorrectas de la pregunta actual. */
@@ -320,6 +331,12 @@ export function useQuiz() {
     return true
   }
 
+  /** El jugador falló: termina el juego y cae al premio garantizado. */
+  function perder() {
+    perdio.value = true
+    finalizar()
+  }
+
   /** Cierra la partida y guarda el récord si corresponde. */
   function finalizar() {
     if (puntos.value > mejorPuntaje.value) {
@@ -383,12 +400,14 @@ export function useQuiz() {
     mejorPuntaje,
     nuevoRecord,
     retirado,
+    perdio,
     ganadores,
     // constantes útiles
     SEGUNDOS_POR_PREGUNTA,
     PREMIOS,
     nivelPremio,
     premioActual,
+    premioGarantizado,
     // acciones
     cargar,
     empezar,
@@ -400,6 +419,7 @@ export function useQuiz() {
     saltarPregunta,
     activarDoble,
     retirarse,
+    perder,
     guardarGanador,
   }
 }

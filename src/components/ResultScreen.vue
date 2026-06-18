@@ -10,7 +10,7 @@ import StatPill from './StatPill.vue'
 
 // Inyectado desde App: premio ganado, estado de retiro y lista de ganadores.
 const quiz = inject('quiz')
-const { premioActual, retirado, ganadores } = quiz
+const { premioActual, premioGarantizado, retirado, perdio, ganadores } = quiz
 
 // --- Salón de la fama ---
 const nombre = ref('')
@@ -91,6 +91,8 @@ async function compartir() {
 }
 
 const mensaje = computed(() => {
+  if (perdio.value) return '¡Mejor suerte la próxima vez! Seguí practicando 💪'
+  if (retirado.value) return '¡Decisión inteligente! Te fuiste con el premio 🏳️'
   if (props.porcentaje === 100) return '¡Perfecto! Sos un experto en Costa Rica 🇨🇷'
   if (props.porcentaje >= 80) return '¡Excelente! Casi todo correcto 🌟'
   if (props.porcentaje >= 50) return '¡Bien hecho! Vas por buen camino 👍'
@@ -120,12 +122,21 @@ const estrellas = computed(() => {
   <section class="resultado contenedor">
     <div v-if="nuevoRecord" class="resultado__record">🏆 ¡Nuevo récord!</div>
 
-    <h1 class="resultado__titulo">{{ retirado ? '¡Te retiraste!' : 'Resultado' }}</h1>
+    <h1 class="resultado__titulo">
+      {{ perdio ? '😢 ¡Perdiste!' : retirado ? '¡Te retiraste!' : 'Resultado' }}
+    </h1>
 
     <!-- Premio ganado (estilo Millonario) -->
-    <div class="premio" :class="{ 'premio--retiro': retirado }">
-      <span class="premio__label">{{ retirado ? '🏳️ Te llevás' : '🏆 Ganaste' }}</span>
-      <span class="premio__monto">{{ premioActual.formato }}</span>
+    <div class="premio" :class="{ 'premio--retiro': retirado, 'premio--perdio': perdio }">
+      <span class="premio__label">
+        {{ perdio ? '😬 Te vas con' : retirado ? '🏳️ Te llevás' : '🏆 Ganaste' }}
+      </span>
+      <span class="premio__monto">
+        {{ perdio ? premioGarantizado.formato : premioActual.formato }}
+      </span>
+      <span v-if="perdio && premioGarantizado.formato === '₡0'" class="premio__sub">
+        No habías llegado a un nivel garantizado
+      </span>
     </div>
 
     <!-- Anillo de puntuación (SVG) -->
@@ -279,6 +290,16 @@ const estrellas = computed(() => {
   background: linear-gradient(135deg, var(--cielo), #1487b8);
   color: #fff;
   box-shadow: 0 10px 26px -10px rgba(27, 160, 215, 0.7);
+}
+.premio--perdio {
+  background: linear-gradient(135deg, var(--coral), #c0392b);
+  color: #fff;
+  box-shadow: 0 10px 26px -10px rgba(239, 68, 68, 0.7);
+}
+.premio__sub {
+  font-size: 0.78rem;
+  opacity: 0.85;
+  margin-top: 0.2rem;
 }
 .premio__label {
   font-size: 0.8rem;
