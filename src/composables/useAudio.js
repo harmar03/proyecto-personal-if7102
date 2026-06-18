@@ -103,6 +103,7 @@ export function useAudio() {
     retiro: { ruta: '/audio/retiro.mp3', vol: 0.85 },
   }
   const cacheClip = {}
+  let entradaEl = null // jingle de entrada en curso (para poder cortarlo)
 
   function reproducirClip(tipo) {
     const cfg = CLIPS[tipo]
@@ -117,6 +118,18 @@ export function useAudio() {
       // Clonamos para permitir solapamientos sin cortar la reproducción previa.
       const el = base.cloneNode()
       el.volume = cfg.vol
+      // El jingle de entrada se rastrea para cortarlo al cambiar de pregunta.
+      if (tipo === 'entrada') {
+        if (entradaEl) {
+          try {
+            entradaEl.pause()
+            entradaEl.currentTime = 0
+          } catch {
+            /* noop */
+          }
+        }
+        entradaEl = el
+      }
       const p = el.play()
       if (p && p.catch) p.catch(() => {})
     } catch {
@@ -234,6 +247,16 @@ export function useAudio() {
     if (musicaEl) {
       musicaEl.pause()
       musicaEl.currentTime = 0
+    }
+    // Corta también el jingle de entrada para que no se encime al cambiar.
+    if (entradaEl) {
+      try {
+        entradaEl.pause()
+        entradaEl.currentTime = 0
+      } catch {
+        /* noop */
+      }
+      entradaEl = null
     }
     if (musicInterval) {
       clearInterval(musicInterval)
