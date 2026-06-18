@@ -91,10 +91,14 @@ export function useAudio() {
   const cacheArchivo = {}
   const archivoDisponible = {}
 
-  // Clips de un solo disparo (siempre archivo .mp3, sin síntesis de respaldo).
+  // Clips de un solo disparo (archivo .mp3). Tienen prioridad sobre la síntesis.
+  //  - acierto: sonido de respuesta correcta.
+  //  - error:   sonido de respuesta incorrecta.
   //  - entrada: jingle corto al aparecer cada pregunta.
   //  - retiro:  suena cuando el jugador se retira llevándose el premio.
   const CLIPS = {
+    acierto: { ruta: '/audio/acierto.mp3', vol: 0.8 },
+    error: { ruta: '/audio/error.mp3', vol: 0.8 },
     entrada: { ruta: '/audio/entrada.mp3', vol: 0.7 },
     retiro: { ruta: '/audio/retiro.mp3', vol: 0.85 },
   }

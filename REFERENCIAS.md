@@ -42,21 +42,21 @@ fuentes de los recursos usados.
 
 ## 3. Recursos multimedia
 
-### Efectos de sonido — **producción propia**
+### Efectos de sonido
 
-Los 3 efectos requeridos (acierto, error y resultado) **no se descargaron**: se
-generan en tiempo real con la **Web Audio API** (osciladores), en el composable
-`src/composables/useAudio.js`. Por lo tanto son de producción propia y con
-licencia libre de uso.
+El efecto `resultado` se **genera en tiempo real con la Web Audio API**
+(osciladores), en `src/composables/useAudio.js` → producción propia. Los efectos
+`acierto` y `error` usan archivos `.mp3` (ver tabla). Si un archivo faltara, el
+código cae automáticamente en la síntesis de respaldo (también propia).
 
-| Efecto      | Cómo se produce                              | Licencia        |
-| ----------- | -------------------------------------------- | --------------- |
-| `acierto`   | Arpegio ascendente (3 tonos, onda triangular) | Propia          |
-| `error`     | Dos tonos graves descendentes (sierra)        | Propia          |
-| `resultado` | Fanfarria de 4 tonos (onda cuadrada)          | Propia          |
+| Efecto      | Cómo se produce                               | Origen / Licencia                                   |
+| ----------- | --------------------------------------------- | --------------------------------------------------- |
+| `acierto`   | `public/audio/acierto.mp3`                    | Generado con **ElevenLabs (IA)** — sonido de éxito  |
+| `error`     | `public/audio/error.mp3`                      | Archivo de banco de sonidos (terceros), uso libre   |
+| `resultado` | Fanfarria de 4 tonos (Web Audio API)          | Producción propia                                   |
 
-> El código admite además archivos `.mp3` reales en `public/audio/`
-> (`acierto.mp3`, `error.mp3`, `resultado.mp3`). Si se agregan, se usan esos.
+> Respaldo sintetizado (producción propia) si los `.mp3` no están presentes:
+> `acierto` = arpegio ascendente, `error` = dos tonos graves descendentes.
 
 ### Música de fondo — **material de terceros**
 
