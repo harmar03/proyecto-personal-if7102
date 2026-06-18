@@ -58,6 +58,16 @@ licencia libre de uso.
 > El código admite además archivos `.mp3` reales en `public/audio/`
 > (`acierto.mp3`, `error.mp3`, `resultado.mp3`). Si se agregan, se usan esos.
 
+### Música de fondo — **material de terceros**
+
+| Recurso | Descripción | Origen / Licencia |
+| ------- | ----------- | ----------------- |
+| `public/audio/millonario.mp3` | Música de tensión que suena en bucle durante cada pregunta | Tema musical del programa *¿Quién Quiere Ser Millonario?* — **material con derechos de autor**, usado solo con fines educativos y sin fin de lucro dentro de este proyecto académico. **No es de producción propia.** |
+
+> Si este archivo no está presente, el juego cae automáticamente en un arpegio
+> de tensión **sintetizado con la Web Audio API** (producción propia), definido
+> en `src/composables/useAudio.js`.
+
 ### Imágenes e ilustraciones — **producción propia**
 
 | Recurso | Descripción | Licencia |

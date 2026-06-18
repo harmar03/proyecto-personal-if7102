@@ -135,16 +135,17 @@ export function useAudio() {
   }
 
   // --- Música de tensión (estilo ¿Quién Quiere Ser Millonario?) ---
-  // Arpegio en Re menor que se repite mientras el jugador piensa.
-  let musicInterval = null
+  // Reproduce en bucle el archivo public/audio/millonario.mp3 mientras el
+  // jugador piensa la respuesta. Si el archivo no existe o falla, cae en un
+  // arpegio sintetizado de respaldo (Web Audio API).
+  let musicaEl = null // elemento <audio> del mp3
+  let musicInterval = null // respaldo sintetizado
   let musicBeat = 0
   const NOTAS_TENSION = [146.83, 220, 174.61, 220, 130.81, 196, 155.56, 220]
+  const RUTA_MUSICA = '/audio/millonario.mp3'
 
-  function iniciarMusica(tipo) {
-    pararMusica()
-    if (tipo !== 'tension') return
+  function iniciarSintetizada() {
     musicBeat = 0
-
     const pulsar = () => {
       if (silenciado.value) return
       const a = getCtx()
@@ -161,12 +162,38 @@ export function useAudio() {
       osc.stop(a.currentTime + 0.5)
       musicBeat++
     }
-
     pulsar()
     musicInterval = setInterval(pulsar, 600)
   }
 
+  function iniciarMusica(tipo) {
+    pararMusica()
+    if (tipo !== 'tension' || silenciado.value) return
+
+    // Intenta el archivo real primero.
+    try {
+      if (!musicaEl) {
+        musicaEl = new Audio(RUTA_MUSICA)
+        musicaEl.loop = true
+        musicaEl.volume = 0.45
+        musicaEl.preload = 'auto'
+      }
+      musicaEl.currentTime = 0
+      const p = musicaEl.play()
+      if (p && p.catch) {
+        // Si el navegador bloquea o el archivo no existe, usa el respaldo.
+        p.catch(() => iniciarSintetizada())
+      }
+    } catch {
+      iniciarSintetizada()
+    }
+  }
+
   function pararMusica() {
+    if (musicaEl) {
+      musicaEl.pause()
+      musicaEl.currentTime = 0
+    }
     if (musicInterval) {
       clearInterval(musicInterval)
       musicInterval = null
