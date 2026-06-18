@@ -101,6 +101,7 @@ export function useAudio() {
     error: { ruta: '/audio/error.mp3', vol: 0.8 },
     entrada: { ruta: '/audio/entrada.mp3', vol: 0.7 },
     retiro: { ruta: '/audio/retiro.mp3', vol: 0.85 },
+    dinero: { ruta: '/audio/dinero.mp3', vol: 0.9 },
   }
   const cacheClip = {}
   let entradaEl = null // jingle de entrada en curso (para poder cortarlo)
@@ -191,7 +192,9 @@ export function useAudio() {
   // cuando el jugador responde. Si el archivo falla, cae en un arpegio
   // sintetizado corto de respaldo (Web Audio API), también de un solo disparo.
   let musicaEl = null // elemento <audio> del mp3
+  let llamadaEl = null // música de fondo que arranca al terminar la fanfarria
   const RUTA_MUSICA = '/audio/nueva-pregunta.mp3'
+  const RUTA_LLAMADA = '/audio/llamada.mp3'
 
   function iniciarSintetizada() {
     // Respaldo: breve arpegio de tensión que suena una vez (no en bucle).
@@ -213,6 +216,23 @@ export function useAudio() {
     })
   }
 
+  function iniciarLlamada() {
+    if (silenciado.value) return
+    try {
+      if (!llamadaEl) {
+        llamadaEl = new Audio(RUTA_LLAMADA)
+        llamadaEl.loop = true
+        llamadaEl.volume = 0.45
+        llamadaEl.preload = 'auto'
+      }
+      llamadaEl.currentTime = 0
+      const p = llamadaEl.play()
+      if (p && p.catch) p.catch(() => {})
+    } catch {
+      /* noop */
+    }
+  }
+
   function iniciarMusica(tipo) {
     pararMusica()
     if (tipo !== 'tension' || silenciado.value) return
@@ -221,14 +241,15 @@ export function useAudio() {
     try {
       if (!musicaEl) {
         musicaEl = new Audio(RUTA_MUSICA)
-        musicaEl.loop = false // <-- clave: suena UNA vez al entrar
+        musicaEl.loop = false // suena UNA vez al entrar
         musicaEl.volume = 0.5
         musicaEl.preload = 'auto'
       }
       musicaEl.currentTime = 0
+      // Al terminar la fanfarria, arranca la música de tensión encadenada.
+      musicaEl.addEventListener('ended', iniciarLlamada, { once: true })
       const p = musicaEl.play()
       if (p && p.catch) {
-        // Si el navegador bloquea o el archivo no existe, usa el respaldo.
         p.catch(() => iniciarSintetizada())
       }
     } catch {
@@ -240,6 +261,12 @@ export function useAudio() {
     if (musicaEl) {
       musicaEl.pause()
       musicaEl.currentTime = 0
+      // Quita el listener pendiente para que no arranque llamada al pausar.
+      musicaEl.removeEventListener('ended', iniciarLlamada)
+    }
+    if (llamadaEl) {
+      llamadaEl.pause()
+      llamadaEl.currentTime = 0
     }
   }
 

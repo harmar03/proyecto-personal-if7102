@@ -103,7 +103,7 @@ function avanzar() {
   } else {
     quiz.finalizar()
     audio.pararMusica()
-    audio.reproducir('resultado')
+    audio.reproducir('dinero')
     emit('terminar')
   }
 }
@@ -137,7 +137,7 @@ function retirarse() {
   if (quiz.retirarse()) {
     timer.detener()
     audio.pararMusica()
-    audio.reproducir('retiro') // "el jugador se lleva el dinero"
+    audio.reproducir('dinero')
     emit('terminar')
   }
 }

@@ -5,9 +5,8 @@
  * o la ilustración SVG de CategoryArt como fallback. Estilo inspirado en
  * ¿Quién Quiere Ser Millonario?
  */
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import OptionButton from './OptionButton.vue'
-import CategoryArt from './CategoryArt.vue'
 
 const props = defineProps({
   pregunta: { type: Object, required: true },
@@ -19,9 +18,6 @@ const props = defineProps({
 
 const emit = defineEmits(['elegir'])
 
-// Intenta cargar la foto de categoría desde public/images/<categoria>.jpg.
-// Si no existe, fotoFallo se pone true y se muestra la ilustración SVG.
-const fotoFallo = ref(false)
 
 // Estado visual de cada opción según si ya se respondió.
 function estadoOpcion(i, texto) {
@@ -42,30 +38,6 @@ const acerto = computed(
 
 <template>
   <article class="pregunta tarjeta">
-    <!-- Banner de imagen estilo Millonario -->
-    <div class="pregunta__media">
-      <img
-        v-if="!fotoFallo"
-        :src="`/images/${pregunta.categoria}.jpg`"
-        :alt="categoria.nombre"
-        class="pregunta__foto"
-        @error="fotoFallo = true"
-      />
-      <!-- Fallback: ilustración SVG grande de la categoría -->
-      <div v-else class="pregunta__svg-banner" aria-hidden="true">
-        <div class="pregunta__art-wrap">
-          <CategoryArt :categoria="pregunta.categoria" />
-        </div>
-        <div class="pregunta__svg-overlay"></div>
-      </div>
-
-      <!-- Etiqueta de categoría sobre la imagen -->
-      <span class="pregunta__cat-badge">
-        <span aria-hidden="true">{{ categoria.emoji }}</span>
-        {{ categoria.nombre }}
-      </span>
-    </div>
-
     <!-- Cuerpo: pregunta y opciones -->
     <div class="pregunta__cuerpo">
       <h2 class="pregunta__texto">{{ pregunta.pregunta }}</h2>
@@ -102,66 +74,6 @@ const acerto = computed(
 .pregunta {
   overflow: hidden;
   padding: 0;
-}
-
-/* --- Media banner (foto o SVG) --- */
-.pregunta__media {
-  position: relative;
-  width: 100%;
-  height: 170px;
-  overflow: hidden;
-  background: var(--surface-2);
-}
-.pregunta__foto {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.pregunta__svg-banner {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--selva) 35%, var(--surface-2)),
-    color-mix(in srgb, var(--cielo) 25%, var(--surface-2))
-  );
-  position: relative;
-}
-/* Overlay sutil que oscurece un poco para que el badge de categoría sea legible */
-.pregunta__svg-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.25) 100%);
-}
-.pregunta__art-wrap {
-  width: 140px;
-  height: 140px;
-  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.3));
-  position: relative;
-  z-index: 1;
-}
-
-/* Badge de categoría flotando sobre la imagen */
-.pregunta__cat-badge {
-  position: absolute;
-  bottom: 0.6rem;
-  left: 0.8rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.78rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #fff;
-  background: rgba(0,0,0,0.52);
-  backdrop-filter: blur(4px);
-  padding: 0.3rem 0.7rem;
-  border-radius: 999px;
 }
 
 /* --- Cuerpo de la tarjeta --- */

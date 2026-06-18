@@ -62,7 +62,7 @@ function alInicio() {
     <div class="cabecera__interno contenedor">
       <button class="marca" @click="alInicio" aria-label="Volver al inicio">
         <span class="marca__logo" aria-hidden="true">🇨🇷</span>
-        <span class="marca__txt">Pura Vida <strong>Quiz</strong></span>
+        <span class="marca__txt">Quiz <strong>Costa Rica</strong></span>
       </button>
       <div class="cabecera__acciones">
         <button

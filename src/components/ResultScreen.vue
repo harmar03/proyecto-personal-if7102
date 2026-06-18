@@ -61,7 +61,7 @@ function avisarCopiado() {
 // de respaldo con un <textarea> temporal (execCommand) para mayor compatibilidad.
 async function compartir() {
   const texto =
-    `🇨🇷 Pura Vida Quiz — Acerté ${props.aciertos}/${props.total} ` +
+    `🇨🇷 Quiz Costa Rica — Acerté ${props.aciertos}/${props.total} ` +
     `(${props.porcentaje}%) y sumé ${props.puntaje} puntos. ¿Podés superarme?`
 
   if (navigator.clipboard?.writeText) {
@@ -120,11 +120,22 @@ const estrellas = computed(() => {
 
 <template>
   <section class="resultado contenedor">
-    <div v-if="nuevoRecord" class="resultado__record">🏆 ¡Nuevo récord!</div>
-
-    <h1 class="resultado__titulo">
-      {{ perdio ? '😢 ¡Perdiste!' : retirado ? '¡Te retiraste!' : 'Resultado' }}
-    </h1>
+    <!-- Banner hero con foto de fondo -->
+    <div class="resultado__hero">
+      <img
+        :src="perdio ? '/images/historia.jpg' : '/images/geografia.jpg'"
+        alt=""
+        class="resultado__hero-foto"
+        aria-hidden="true"
+      />
+      <div class="resultado__hero-overlay"></div>
+      <div class="resultado__hero-contenido">
+        <div v-if="nuevoRecord" class="resultado__record">🏆 ¡Nuevo récord!</div>
+        <h1 class="resultado__titulo">
+          {{ perdio ? '😢 ¡Perdiste!' : retirado ? '¡Te retiraste!' : '🇨🇷 ¡Resultado!' }}
+        </h1>
+      </div>
+    </div>
 
     <!-- Premio ganado (estilo Millonario) -->
     <div class="premio" :class="{ 'premio--retiro': retirado, 'premio--perdio': perdio }">
@@ -268,8 +279,8 @@ const estrellas = computed(() => {
   animation: aparecer 0.5s ease;
 }
 .resultado__titulo {
-  font-size: clamp(1.8rem, 6vw, 2.4rem);
-  margin-bottom: 1rem;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  margin-bottom: 0;
 }
 
 /* --- Premio ganado --- */
@@ -530,5 +541,48 @@ const estrellas = computed(() => {
     opacity: 0;
     transform: translateY(-10px) scale(0.9);
   }
+}
+
+/* --- Hero banner foto en resultado --- */
+.resultado__hero {
+  position: relative;
+  width: 100vw;
+  max-width: 860px;
+  height: 200px;
+  overflow: hidden;
+  margin-bottom: 1.4rem;
+  border-radius: 0 0 var(--radio) var(--radio);
+}
+.resultado__hero-foto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+  display: block;
+}
+.resultado__hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 100%);
+}
+.resultado__hero-contenido {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 1.2rem;
+  gap: 0.4rem;
+}
+/* Sobreescribe colores del título y record para que sean legibles sobre la foto */
+.resultado__hero .resultado__record {
+  margin-bottom: 0;
+  font-size: 0.85rem;
+}
+.resultado__hero .resultado__titulo {
+  margin-bottom: 0;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
 }
 </style>

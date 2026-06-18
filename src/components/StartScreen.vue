@@ -61,8 +61,17 @@ const categoriasInfo = computed(() =>
       </g>
     </svg>
 
-    <h1 class="inicio__titulo">Pura Vida <span>Quiz</span></h1>
+    <h1 class="inicio__titulo">Quiz <span>Costa Rica</span></h1>
     <p class="inicio__sub">¿Cuánto sabés de Costa Rica? Poné a prueba tus conocimientos.</p>
+
+    <!-- Galería decorativa de fotos de Costa Rica -->
+    <div class="inicio__galeria" aria-hidden="true">
+      <img src="/images/geografia.jpg"    alt="" class="galeria__foto" />
+      <img src="/images/naturaleza.jpg"   alt="" class="galeria__foto" />
+      <img src="/images/cultura.jpg"      alt="" class="galeria__foto" />
+      <img src="/images/gastronomia.jpg"  alt="" class="galeria__foto" />
+      <img src="/images/simbolos.jpg"     alt="" class="galeria__foto" />
+    </div>
 
     <!-- Estado: cargando -->
     <p v-if="estado === 'cargando'" class="inicio__cargando">Cargando preguntas…</p>
@@ -229,5 +238,29 @@ kbd {
 .inicio__jugar {
   font-size: 1.1rem;
   padding: 1rem 2.4rem;
+}
+
+/* Galería decorativa de fotos */
+.inicio__galeria {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  width: 100%;
+  max-width: 560px;
+  height: 130px;
+  border-radius: var(--radio);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--sombra);
+}
+.galeria__foto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+.galeria__foto:hover {
+  transform: scale(1.1);
 }
 </style>

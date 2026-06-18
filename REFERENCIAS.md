@@ -1,4 +1,4 @@
-# REFERENCIAS — Pura Vida Quiz (Proyecto Personal IF7102)
+# REFERENCIAS — Quiz Costa Rica (Proyecto Personal IF7102)
 
 **Estudiante:** Harold Martin
 **Curso:** IF7102 – Multimedios | I Ciclo 2026

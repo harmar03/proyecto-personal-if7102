@@ -1,4 +1,4 @@
-# 🇨🇷 Pura Vida Quiz — Conocé Costa Rica
+# 🇨🇷 Quiz Costa Rica — Conocé Costa Rica
 
 Quiz educativo interactivo sobre Costa Rica (naturaleza, geografía, cultura e
 historia), construido con **Vue 3 + Vite**. Proyecto Personal del curso.
